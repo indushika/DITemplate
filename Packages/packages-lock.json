@@ -1,11 +1,39 @@
 {
   "dependencies": {
+    "ayellowpaper.serialized-dictionary": {
+      "version": "https://github.com/ayellowpaper/SerializedDictionary.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f3ddbf09e20fc0c55b4468b86ccf05f0f5b04d25"
+    },
     "com.cysharp.mastermemory": {
       "version": "https://github.com/Cysharp/MasterMemory.git?path=/src/MasterMemory.Unity/Assets/Scripts/MasterMemory",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "a310e322eb23850a42a69a904f165cbe8d2d6259"
+    },
+    "com.cysharp.messagepipe": {
+      "version": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "10cc1a25545b8b4e2687e46f64bfbedb331e7882"
+    },
+    "com.cysharp.messagepipe.vcontainer": {
+      "version": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe.VContainer",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "10cc1a25545b8b4e2687e46f64bfbedb331e7882"
+    },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "fbe0bf85155f42f8832205f7b3ac3df571ada33e"
     },
     "com.neuecc.messagepack": {
       "version": "https://github.com/neuecc/MessagePack-CSharp.git?path=/src/MessagePack.UnityClient/Assets/Scripts/MessagePack#v2.5.140",
@@ -86,13 +114,6 @@
     },
     "com.unity.mathematics": {
       "version": "1.2.6",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.nuget.mono-cecil": {
-      "version": "1.11.4",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -228,13 +249,11 @@
       "url": "https://packages.unity.com"
     },
     "jp.hadashikick.vcontainer": {
-      "version": "1.13.2",
+      "version": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.15.4",
       "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.nuget.mono-cecil": "1.10.1"
-      },
-      "url": "https://package.openupm.com"
+      "source": "git",
+      "dependencies": {},
+      "hash": "58610810240efebe27b982a3adfb8405c57320a2"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
