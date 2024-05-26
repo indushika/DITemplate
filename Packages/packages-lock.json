@@ -1,5 +1,19 @@
 {
   "dependencies": {
+    "com.cysharp.mastermemory": {
+      "version": "https://github.com/Cysharp/MasterMemory.git?path=/src/MasterMemory.Unity/Assets/Scripts/MasterMemory",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a310e322eb23850a42a69a904f165cbe8d2d6259"
+    },
+    "com.neuecc.messagepack": {
+      "version": "https://github.com/neuecc/MessagePack-CSharp.git?path=/src/MessagePack.UnityClient/Assets/Scripts/MessagePack#v2.5.140",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "eefc9079d12c476f95a12ccb4c1a18bf0f9aa03c"
+    },
     "com.unity.burst": {
       "version": "1.8.13",
       "depth": 1,

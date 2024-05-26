@@ -48,6 +48,8 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.neuecc.messagepack": "https://github.com/neuecc/MessagePack-CSharp.git?path=/src/MessagePack.UnityClient/Assets/Scripts/MessagePack#v2.5.140",
+    "com.cysharp.mastermemory": "https://github.com/Cysharp/MasterMemory.git?path=/src/MasterMemory.Unity/Assets/Scripts/MasterMemory"
   }
 }
