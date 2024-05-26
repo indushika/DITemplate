@@ -15,8 +15,6 @@ namespace MonsterFactory.Services
         public void Initialize()
         {
             dataManager.ReadAndCacheDataForUser();
-            connector.SetUserName("pkya");
-            Debug.Log("" + connector.GetUserName());
         }
     }
 }

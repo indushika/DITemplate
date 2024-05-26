@@ -8,6 +8,8 @@ using UnityEngine;
 
 namespace MonsterFactory.TaskManagement
 {
+    
+    //#TODO Deprecate this data system
     public class TaskDataManager : MFService
     {
         private readonly IDataConnector dataConnector;
@@ -23,28 +25,21 @@ namespace MonsterFactory.TaskManagement
 
         public TaskState GetTaskProgressState(string id)
         {
-            if (dataConnector.GetTaskProgressById(id) is { } progress)
-            {
-                return progress.taskState;
-            }
+
 
             return TaskState.NotStarted;
         }
 
         public PlayerTaskProgress GetPlayerTaskProgressById(string id)
         {
-            if (dataConnector.GetTaskProgressById(id) is { } progress)
-            {
-                return progress;
-            }
-
+    
             return null;
         }
 
         public void UpdatePlayerTaskProgress(string id, PlayerTaskProgress progress)
         {
             bool shouldPublishState = CheckForStateChange(id, progress);
-            dataConnector.SetTaskProgressById(id, progress);
+     
             if (shouldPublishState)
             {
                 taskEventPublisher.Publish(ResolveStateEvent(progress));
@@ -59,7 +54,7 @@ namespace MonsterFactory.TaskManagement
 
         private bool CheckForStateChange(string id, PlayerTaskProgress progress)
         {
-            return dataConnector.GetTaskProgressById(id)?.taskState != progress.taskState;
+            return false;
         }
 
         private PlayerTaskBaseEvent ResolveStateEvent(PlayerTaskProgress progress)
