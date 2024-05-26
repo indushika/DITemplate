@@ -12,4 +12,9 @@ namespace MonsterFactory.Services.DataManagement
             this.dataInstanceProvider = dataInstanceProvider;
         }
     }
+
+    public interface IDataConnector
+    {
+        
+    }
 }

@@ -3,14 +3,13 @@ using VContainer.Unity;
 using MessagePipe;
 using MonsterFactory.Services;
 using MonsterFactory.Services.DataManagement;
-using MonsterFactory.Services.SceneManagement;
 using MonsterFactory.Events;
 using MonsterFactory.Services.Session;
 using UnityEngine;
 
 public class GameLifetimeScope : LifetimeScope
 {
-    [SerializeField]private SceneTransitionController _sceneTransitionController;
+
  
     protected override void Configure(IContainerBuilder builder)
     {
@@ -25,8 +24,6 @@ public class GameLifetimeScope : LifetimeScope
         //builder.RegisterEntryPoint<MFService>(Lifetime.Transient);
         builder.Register<DataInstanceProvider>(Lifetime.Singleton);
         builder.Register<DataConnector>(Lifetime.Singleton).As<IDataConnector>();
-        builder.RegisterInstance(_sceneTransitionController).AsImplementedInterfaces();
-        builder.Register<SceneNavigationManager>(Lifetime.Singleton).AsImplementedInterfaces();
 
         builder.RegisterEntryPoint<GameInitializer>();
     }
