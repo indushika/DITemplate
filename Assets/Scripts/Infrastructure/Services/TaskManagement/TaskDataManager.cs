@@ -25,8 +25,6 @@ namespace MonsterFactory.TaskManagement
 
         public TaskState GetTaskProgressState(string id)
         {
-
-
             return TaskState.NotStarted;
         }
 

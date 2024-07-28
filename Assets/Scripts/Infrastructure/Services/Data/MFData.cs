@@ -11,4 +11,15 @@ namespace MonsterFactory.Services.DataManagement
     {
         internal string InstanceId;
     }
+
+    [LocallyStoredDataObject("TestData", true,true)]
+    public class TestData : MFData
+    {
+        private string dataString;
+        public string DataString
+        {
+            get => dataString;
+            set => dataString = value;
+        }
+    }
 }

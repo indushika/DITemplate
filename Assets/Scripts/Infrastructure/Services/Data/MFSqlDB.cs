@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using SQLite;
-using SQLiteNetExtensions;
-using System.IO;
-using System.Threading.Tasks;
+﻿using SQLite;
 using Cysharp.Threading.Tasks;
 using MessagePack;
 using SQLiteNetExtensions.Attributes;
-using SQLiteNetExtensions.Extensions.TextBlob;
-using UnityEngine;
+
 
 namespace MonsterFactory.Services.DataManagement
 {
@@ -22,12 +16,12 @@ namespace MonsterFactory.Services.DataManagement
 
         public void AddDataChunkMap(string typeString, int chunkId);
     }
-    
+
     public class MFSqlDB : IMFLocalDBService
     {
         private readonly string dbPath;
         private SQLiteAsyncConnection dbConnection;
-        
+
         public MFSqlDB(string dbFilePath)
         {
             dbPath = dbFilePath;
@@ -35,13 +29,14 @@ namespace MonsterFactory.Services.DataManagement
 
         private UniTask InitializeGameTables()
         {
-            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunk),typeof(DataChunkMap));
+            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunk), typeof(DataChunkMap));
         }
 
 
         public UniTask Initialize()
         {
-            dbConnection = new SQLiteAsyncConnection(dbPath,SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
+            dbConnection = new SQLiteAsyncConnection(dbPath,
+                SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
             return InitializeGameTables();
         }
 
@@ -49,7 +44,7 @@ namespace MonsterFactory.Services.DataManagement
         {
             return await dbConnection.GetAsync<DataChunk>(dataChunkId);
         }
-        
+
         public async UniTask<DataChunkMap> GetChunkUniqueDataFromKey(string key)
         {
             return await dbConnection.GetAsync<DataChunkMap>(key);
@@ -57,7 +52,7 @@ namespace MonsterFactory.Services.DataManagement
 
         public UniTask<int> AddNewDataInstance(DataChunk data)
         {
-           return dbConnection.InsertAsync(data, typeof(DataChunk));
+            return dbConnection.InsertAsync(data, typeof(DataChunk));
         }
 
         public void AddDataChunkMap(string typeString, int chunkId)
@@ -68,21 +63,18 @@ namespace MonsterFactory.Services.DataManagement
                 Id = typeString
             });
         }
-        
-
     }
-    
+
     public class DataChunk
     {
-        [AutoIncrement, PrimaryKey, Unique]
-        public int DataChunkId { get; set; }
+        [AutoIncrement, PrimaryKey, Unique] public int DataChunkId { get; set; }
         public byte[] DataBlob { get; set; }
     }
-    
+
     public class DataChunkMap
     {
-        [PrimaryKey, Unique, MaxLength(64)]
-        public string Id { get; set; }
+        [PrimaryKey, Unique, MaxLength(64)] public string Id { get; set; }
+
         [Indexed, ForeignKey(typeof(DataChunk))]
         public int DataChunkId { get; set; }
     }

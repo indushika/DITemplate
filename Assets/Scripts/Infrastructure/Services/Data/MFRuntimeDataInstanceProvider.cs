@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using MessagePipe;
+using MonsterFactory.Events;
 using MonsterFactory.Services.DataManagement;
 using UnityEngine;
 using VContainer;
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public abstract class MFRuntimeDataInstanceProvider<T> where T : MFData, new()
+    public class MFRuntimeDataInstanceProvider<T> : IDisposable where T : MFData, new()
     {
         private readonly IMFLocalDBService dbService;
+        private IDisposable eventDisposableBag;
         protected readonly string TypeCode;
         protected int dataInstanceId = -1;
         protected bool autoSave;
@@ -20,7 +24,7 @@ namespace MonsterFactory.Services.DataManagement
         private MFDataObject dataObject;
 
         [Inject]
-        protected MFRuntimeDataInstanceProvider(IMFLocalDBService dbService)
+        public MFRuntimeDataInstanceProvider(IMFLocalDBService dbService, IAsyncSubscriber<FetchSaveData> autoFetchSubscriber)
         {
             dataObject = GetDataAttribute();
             string uniqueId = "";
@@ -29,19 +33,17 @@ namespace MonsterFactory.Services.DataManagement
                 dataInstance = new T();
                 return;
             }
-
             this.dbService = dbService;
-            uniqueId = dataObject.UniqueId;
-            autoSave = dataObject.AutoSave;
-            if (!string.IsNullOrEmpty(uniqueId))
+            DisposableBagBuilder disposableBagBuilder = DisposableBag.CreateBuilder();
+            DataProviderTypeResolver.ResolveTypeInfo(ref uniqueId, ref autoSave, ref TypeCode, ref dataObject);
+            if (autoSave)
             {
-                var hashedBytes = new SHA256Managed().ComputeHash(Encoding.UTF8.GetBytes(uniqueId));
-                string hashedString = Convert.ToBase64String(hashedBytes);
-                TypeCode = hashedString.Substring(0, 64);
+                autoFetchSubscriber.Subscribe((InitializeDataObject)).AddTo(disposableBagBuilder);
             }
+            eventDisposableBag = disposableBagBuilder.Build();
         }
 
-        protected T DataInstance
+        public T DataInstance
         {
             get => dataInstance;
             set => UpdateDataInstance(value);
@@ -52,9 +54,13 @@ namespace MonsterFactory.Services.DataManagement
             return dataInstance = value;
         }
 
-        protected async void InitializeDataObject()
+        private async UniTask InitializeDataObject(FetchSaveData eventData, CancellationToken cancellationToken)
         {
-            bool fetchState = await FetchDataFromDb();
+            if (dataInstance != null && !eventData.OverwriteExistingData)
+            {
+                return;
+            }
+            bool fetchState = await FetchDataFromDb(cancellationToken).AttachExternalCancellation(cancellationToken);
             if (!fetchState)
             {
                 dataInstance = new T();
@@ -65,15 +71,15 @@ namespace MonsterFactory.Services.DataManagement
         }
 
 
-        private async UniTask<bool> FetchDataFromDb()
+        private async UniTask<bool> FetchDataFromDb(CancellationToken cancellationToken)
         {
             try
             {
-                DataChunkMap dataChunkMap = await dbService.GetChunkUniqueDataFromKey(TypeCode);
+                DataChunkMap dataChunkMap = await dbService.GetChunkUniqueDataFromKey(TypeCode).AttachExternalCancellation(cancellationToken);
                 if (dataChunkMap != null)
                 {
                     dataInstanceId = dataChunkMap.DataChunkId;
-                    return await TryProcessDataChunk();
+                    return await TryProcessDataChunk().AttachExternalCancellation(cancellationToken);
                 }
             }
             catch (Exception e)
@@ -104,6 +110,11 @@ namespace MonsterFactory.Services.DataManagement
             }
 
             return null;
+        }
+
+        public void Dispose()
+        {
+            eventDisposableBag?.Dispose();
         }
     }
 }

@@ -22,6 +22,13 @@ namespace Infrastructure.Systems
             SetupGlobalMessageBrokers(builder);
             SetupSession(builder);
             SetupServices(builder);
+            SetupDataProviders(builder);
+            builder.RegisterEntryPoint<TestClass>(Lifetime.Singleton);
+        }
+
+        private void SetupDataProviders(IContainerBuilder builder)
+        {
+            RuntimeDataProviderRegistrationHelper.RegisterDataProviders(builder);
         }
 
         private void SetupServices(IContainerBuilder builder)
