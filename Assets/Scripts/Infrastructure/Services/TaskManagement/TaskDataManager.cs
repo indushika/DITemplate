@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using MonsterFactory.Events;
 using MonsterFactory.Services;
@@ -10,14 +11,13 @@ namespace MonsterFactory.TaskManagement
 {
     
     //#TODO Deprecate this data system
-    public class TaskDataManager : MFService
+    public class TaskDataManager : IMFService
     {
-        private readonly IDataConnector dataConnector;
+
         private readonly IAsyncPublisher<PlayerTaskBaseEvent> taskEventPublisher;
 
-        public TaskDataManager(IDataConnector dataConnector, IAsyncPublisher<PlayerTaskBaseEvent> taskEventPublisher)
+        public TaskDataManager( IAsyncPublisher<PlayerTaskBaseEvent> taskEventPublisher)
         {
-            this.dataConnector = dataConnector;
             this.taskEventPublisher = taskEventPublisher;
         }
 
@@ -76,5 +76,11 @@ namespace MonsterFactory.TaskManagement
         }
 
         #endregion
+
+
+        UniTask[] IMFService.GetInitializeTasks()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
