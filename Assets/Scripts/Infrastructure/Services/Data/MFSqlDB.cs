@@ -14,7 +14,7 @@ namespace MonsterFactory.Services.DataManagement
 {
     public interface IMFLocalDBService
     {
-        public void Initialize();
+        public UniTask Initialize();
         public UniTask<DataChunk> GetDataChunkById(int dataChunkId);
         public UniTask<DataChunkMap> GetChunkUniqueDataFromKey(string key);
 
@@ -33,17 +33,16 @@ namespace MonsterFactory.Services.DataManagement
             dbPath = dbFilePath;
         }
 
-        private void InitializeGameTables()
+        private UniTask InitializeGameTables()
         {
-            dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunk),typeof(DataChunkMap));
+            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunk),typeof(DataChunkMap));
         }
 
 
-        public void Initialize()
+        public UniTask Initialize()
         {
             dbConnection = new SQLiteAsyncConnection(dbPath,SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
-            //TODO : Data from existing tables when db paths change here. 
-            InitializeGameTables();
+            return InitializeGameTables();
         }
 
         public async UniTask<DataChunk> GetDataChunkById(int dataChunkId)

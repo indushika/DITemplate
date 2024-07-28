@@ -21,8 +21,7 @@ namespace MonsterFactory.Services.DataManagement
         private UniTask InitializeDataSystems()
         {
             localDBService = new MFSqlDB(DataManagerDirectoryHelper.DataObjectPathForUserId("TestUser"));
-            localDBService.Initialize();
-            return default;
+            return localDBService.Initialize();
         }
 
         public UniTask[] GetInitializeTasks()
