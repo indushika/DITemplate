@@ -23,7 +23,6 @@ namespace MonsterFactory.Services.DataManagement
         public void AddDataChunkMap(string typeString, int chunkId);
     }
     
-    
     public class MFSqlDB : IMFLocalDBService
     {
         private readonly string dbPath;
@@ -42,7 +41,7 @@ namespace MonsterFactory.Services.DataManagement
 
         public void Initialize()
         {
-            dbConnection = new SQLiteAsyncConnection(dbPath,SQLiteOpenFlags.FullMutex);
+            dbConnection = new SQLiteAsyncConnection(dbPath,SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
             //TODO : Data from existing tables when db paths change here. 
             InitializeGameTables();
         }
@@ -80,7 +79,6 @@ namespace MonsterFactory.Services.DataManagement
         public int DataChunkId { get; set; }
         public byte[] DataBlob { get; set; }
     }
-
     
     public class DataChunkMap
     {

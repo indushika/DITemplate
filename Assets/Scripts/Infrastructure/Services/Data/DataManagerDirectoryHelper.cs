@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 
 namespace MonsterFactory.Services.DataManagement
 {
@@ -8,7 +9,15 @@ namespace MonsterFactory.Services.DataManagement
         private static string UserDataObjectName = "UserData";
         public static string DataObjectPathForUserId(string userID)
         {
-            return $"{Application.persistentDataPath}/{UserDataPath}/{userID}/{UserDataObjectName}";
+            var folderPath = $"{Application.persistentDataPath}/{UserDataPath}/{userID}";
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            
+            var path = $"{folderPath}/{UserDataObjectName}";
+            return path;
         }
     }
 }

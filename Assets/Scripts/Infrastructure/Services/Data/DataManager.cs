@@ -16,19 +16,21 @@ namespace MonsterFactory.Services.DataManagement
     }
     public class DataManager : IMFService, IDataManager
     {
-        UniTask[] IMFService.GetInitializeTasks()
+        private IMFLocalDBService localDBService;
+        
+        private UniTask InitializeDataSystems()
+        {
+            localDBService = new MFSqlDB(DataManagerDirectoryHelper.DataObjectPathForUserId("TestUser"));
+            localDBService.Initialize();
+            return default;
+        }
+
+        public UniTask[] GetInitializeTasks()
         {
             return new UniTask[]
             {
                 InitializeDataSystems()
             };
-        }
-
-
-        private UniTask InitializeDataSystems()
-        {
-            Debug.Log("Data Systems Init");
-            return default;
         }
     }
     
