@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using MessagePipe;
+using MonsterFactory.Events;
 using MonsterFactory.Services.DataManagement;
 using UnityEngine;
 using VContainer;
@@ -40,20 +43,23 @@ namespace MonsterFactory.Services
         }
     }
 
-    public class TestClass : IInitializable
+    public class TestClass : IAsyncStartable
     {
         private readonly MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider;
+        private readonly IAsyncPublisher<FetchSaveData> fetchEvent;
 
         [Inject]
-        public TestClass(MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider)
+        public TestClass(MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider, IAsyncPublisher<FetchSaveData> fetchEvent)
         {
             this.testDataInstanceProvider = testDataInstanceProvider;
+            this.fetchEvent = fetchEvent;
         }
+        
 
-
-        public void Initialize()
+        public async UniTask StartAsync(CancellationToken cancellation)
         {
-
+            await fetchEvent.PublishAsync(new FetchSaveData(true), cancellation);
+            Debug.Log(testDataInstanceProvider.DataInstance.DataString);
         }
     }
 }

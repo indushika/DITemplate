@@ -1,30 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using MonsterFactory.Events;
-using MonsterFactory.Services.DataManagement;
 using UnityEngine;
 using VContainer;
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public class MFRuntimeDataInstanceProvider<T> : IDisposable where T : MFData, new()
+    public class MFRuntimeDataInstanceProvider<T> : IDisposable where T : IMFData, new()
     {
         private readonly IMFLocalDBService dbService;
         private IDisposable eventDisposableBag;
         protected readonly string TypeCode;
-        protected int dataInstanceId = -1;
         protected bool autoSave;
         private T dataInstance;
         private MFDataObject dataObject;
 
         [Inject]
-        public MFRuntimeDataInstanceProvider(IMFLocalDBService dbService, IAsyncSubscriber<FetchSaveData> autoFetchSubscriber)
+        public MFRuntimeDataInstanceProvider(IDataManager dataManager,
+            IAsyncSubscriber<FetchSaveData> autoFetchSubscriber)
         {
             dataObject = GetDataAttribute();
             string uniqueId = "";
@@ -33,25 +28,23 @@ namespace MonsterFactory.Services.DataManagement
                 dataInstance = new T();
                 return;
             }
-            this.dbService = dbService;
+
+            dbService = dataManager.LocalDBService();
             DisposableBagBuilder disposableBagBuilder = DisposableBag.CreateBuilder();
             DataProviderTypeResolver.ResolveTypeInfo(ref uniqueId, ref autoSave, ref TypeCode, ref dataObject);
             if (autoSave)
             {
-                autoFetchSubscriber.Subscribe((InitializeDataObject)).AddTo(disposableBagBuilder);
+                autoFetchSubscriber.Subscribe(InitializeDataObject).AddTo(disposableBagBuilder);
             }
+
             eventDisposableBag = disposableBagBuilder.Build();
         }
 
-        public T DataInstance
-        {
-            get => dataInstance;
-            set => UpdateDataInstance(value);
-        }
+        public ref T DataInstance => ref dataInstance;
 
-        public T UpdateDataInstance(T value)
+        public async UniTask UpdateDataInstance()
         {
-            return dataInstance = value;
+            await dbService.WriteDataChunkToId(TypeCode, dataInstance?.SerializeDataToBytes());
         }
 
         private async UniTask InitializeDataObject(FetchSaveData eventData, CancellationToken cancellationToken)
@@ -60,13 +53,12 @@ namespace MonsterFactory.Services.DataManagement
             {
                 return;
             }
+
             bool fetchState = await FetchDataFromDb(cancellationToken).AttachExternalCancellation(cancellationToken);
             if (!fetchState)
             {
                 dataInstance = new T();
-                var dataChunk = new DataChunk();
-                await dbService.AddNewDataInstance(dataChunk);
-                dbService.AddDataChunkMap(TypeCode, dataChunk.DataChunkId);
+                dbService.AddDataChunkMap(TypeCode);
             }
         }
 
@@ -75,12 +67,14 @@ namespace MonsterFactory.Services.DataManagement
         {
             try
             {
-                DataChunkMap dataChunkMap = await dbService.GetChunkUniqueDataFromKey(TypeCode).AttachExternalCancellation(cancellationToken);
-                if (dataChunkMap != null)
+                DataChunkMap dataChunkMap = await dbService.GetChunkUniqueDataFromKey(TypeCode)
+                    .AttachExternalCancellation(cancellationToken);
+                if (dataChunkMap == null)
                 {
-                    dataInstanceId = dataChunkMap.DataChunkId;
-                    return await TryProcessDataChunk().AttachExternalCancellation(cancellationToken);
+                    dbService.AddDataChunkMap(TypeCode);
                 }
+
+                return await TryProcessDataChunk().AttachExternalCancellation(cancellationToken);
             }
             catch (Exception e)
             {
@@ -93,14 +87,19 @@ namespace MonsterFactory.Services.DataManagement
 
         private async UniTask<bool> TryProcessDataChunk()
         {
-            DataChunk dataChunk = await dbService.GetDataChunkById(dataInstanceId);
-            DataInstance = dataChunk.ExtractDataObjectOfType<T>();
+            DataChunkMap dataChunk = await dbService.GetDataChunkById(TypeCode);
+            IMFData var = dataChunk.ExtractDataObjectOfType<T>();
+            if (var is T data)
+            {
+                dataInstance = data;
+            }
+
             return DataInstance != null;
         }
 
         private static MFDataObject GetDataAttribute()
         {
-            object[] attributes = typeof(T).GetCustomAttributes(typeof(T), true);
+            object[] attributes = typeof(T).GetCustomAttributes(typeof(MFDataObject), true);
             foreach (var attribute in attributes)
             {
                 if (attribute is MFDataObject dataObjectAttribute)

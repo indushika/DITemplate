@@ -11,7 +11,7 @@ using VContainer.Unity;
 
 namespace MonsterFactory.Services
 {
-    public class ServiceInitializer : IAsyncStartable
+    public class ServiceInitializer : IInitializable
     {
         private readonly List<Type> lifetimeScope;
         private readonly IObjectResolver objectResolver;
@@ -23,7 +23,7 @@ namespace MonsterFactory.Services
             this.objectResolver = objectResolver;
         }
         
-        private List<UniTask> GetInitializationTasks()
+        public List<UniTask> GetInitializationTasks()
         {
             List<UniTask> initializationTasks = new List<UniTask>();
             foreach (Type type in lifetimeScope)
@@ -37,10 +37,9 @@ namespace MonsterFactory.Services
             return initializationTasks;
         }
 
-        public UniTask StartAsync(CancellationToken cancellation)
+        public async void Initialize()
         {
-            //TODO : Integrate this with loading progress
-            return UniTask.WhenAll(GetInitializationTasks());
+            await UniTask.WhenAll(GetInitializationTasks());
         }
     }
 }

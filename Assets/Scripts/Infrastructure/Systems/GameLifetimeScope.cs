@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MessagePipe;
 using MonsterFactory.Events;
 using MonsterFactory.Services;
+using MonsterFactory.Services.DataManagement;
 using MonsterFactory.Services.Session;
 using VContainer;
 using VContainer.Unity;
@@ -12,13 +13,11 @@ namespace Infrastructure.Systems
     public class GameLifetimeScope : LifetimeScope
     {
         public List<Type> LifetimeServices;
-        protected override void Awake()
-        {
-            base.Awake();
-        }
+
 
         protected override void Configure(IContainerBuilder builder)
         {
+            MFDataExtensions.Initialize();
             SetupGlobalMessageBrokers(builder);
             SetupSession(builder);
             SetupServices(builder);

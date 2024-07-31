@@ -17,7 +17,7 @@ namespace MonsterFactory.Services.DataManagement
                 _sha256Managed ??= new SHA256Managed();
                 byte[] hashedBytes = _sha256Managed.ComputeHash(Encoding.UTF8.GetBytes(uniqueId));
                 string hashedString = Convert.ToBase64String(hashedBytes);
-                typeCode = hashedString.Substring(0, 64);
+                typeCode = hashedString.Length > 64 ? hashedString.Substring(0, 64) : hashedString;
             }
         }
     }

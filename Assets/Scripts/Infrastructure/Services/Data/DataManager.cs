@@ -12,7 +12,7 @@ namespace MonsterFactory.Services.DataManagement
 
     public interface IDataManager
     {
-        
+        public IMFLocalDBService LocalDBService();
     }
     public class DataManager : IMFService, IDataManager
     {
@@ -23,8 +23,8 @@ namespace MonsterFactory.Services.DataManagement
         [Inject]
         public DataManager()
         {
-
         }
+        
         private UniTask InitializeDataSystems()
         {
             localDBService = new MFSqlDB(DataManagerDirectoryHelper.DataObjectPathForUserId("TestUser"));
@@ -37,6 +37,12 @@ namespace MonsterFactory.Services.DataManagement
             {
                 InitializeDataSystems()
             };
+        }
+
+
+        public IMFLocalDBService LocalDBService()
+        {
+            return localDBService;
         }
     }
     
