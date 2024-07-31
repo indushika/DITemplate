@@ -25,32 +25,15 @@ Async wrapper : https://github.com/Cysharp/UniTask
 Event Framework : https://github.com/Cysharp/MessagePipe
 
 
-# Whats in progress 
+# Whats is Working
 
-## Demo Scene 
-TODO : 
-- Add a scene to demonstrate basic strcuture of the project
+#Architecture 
 
-## Task System
-1. Task mapping system to simplify content creation
-2. Tasks should be able to program basic gameplay on a spreadsheet level
-The main goal of this is to later integrate an in memeory managed database for relational access of data. 
-TODO : 
-- Add generic logic for task related content (Text,Prefabs) 
-- Add sample world processor and a demo level 
+- Common registration helper for Services to run all their initialization tasks in paralell
+- MessagePipe integration for easy event registraion and handling. (WIP I'm still looking into better ways to implement async events)
+
 
 ## Data System
-1. Maintain data in a scope level.
-2. Local Storage logic
-WIP : Added placeholder data logic.
-TODO :
-- Add MessagePack to data objects and compare serialisation results 
-- Add MasterMemeory to handle relational data (This will be content specific)
+- Data system phase 1 was to use a SQL db to store serialized data. I'm not taking full advantage of having a DB in this version but good example for what I want to use it for. 
+
   
-## Event System 
-WIP
-
-## Content Management 
-- Locally cached content/ Network delivered content 
-WIP 
-
