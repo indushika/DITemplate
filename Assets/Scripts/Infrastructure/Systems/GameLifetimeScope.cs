@@ -1,49 +1,53 @@
-using VContainer;
-using VContainer.Unity;
+using System;
+using System.Collections.Generic;
 using MessagePipe;
+using MonsterFactory.Events;
 using MonsterFactory.Services;
 using MonsterFactory.Services.DataManagement;
-using MonsterFactory.Services.SceneManagement;
-using MonsterFactory.Events;
 using MonsterFactory.Services.Session;
-using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
-public class GameLifetimeScope : LifetimeScope
+namespace Infrastructure.Systems
 {
-    [SerializeField]private SceneTransitionController _sceneTransitionController;
- 
-    protected override void Configure(IContainerBuilder builder)
+    public class GameLifetimeScope : LifetimeScope
     {
-        SetupGlobalMessageBrokers(builder);
-        SetupSession(builder);
-        SetupServices(builder);
-    }
+        public List<Type> LifetimeServices;
 
-    private void SetupServices(IContainerBuilder builder)
-    {
-        builder.Register<DataManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
-        //builder.RegisterEntryPoint<MFService>(Lifetime.Transient);
-        builder.Register<DataInstanceProvider>(Lifetime.Singleton);
-        builder.Register<DataConnector>(Lifetime.Singleton).As<IDataConnector>();
-        builder.RegisterInstance(_sceneTransitionController).AsImplementedInterfaces();
-        builder.Register<SceneNavigationManager>(Lifetime.Singleton).AsImplementedInterfaces();
 
-        builder.RegisterEntryPoint<GameInitializer>();
-    }
+        protected override void Configure(IContainerBuilder builder)
+        {
+            MFDataExtensions.Initialize();
+            SetupGlobalMessageBrokers(builder);
+            SetupSession(builder);
+            SetupServices(builder);
+            SetupDataProviders(builder);
+            builder.RegisterEntryPoint<TestClass>(Lifetime.Singleton);
+        }
 
-    private void SetupSession(IContainerBuilder builder)
-    {
-        SessionManager.CreateSession();
-    }
+        private void SetupDataProviders(IContainerBuilder builder)
+        {
+            RuntimeDataProviderRegistrationHelper.RegisterDataProviders(builder);
+        }
 
-    private void SetupGlobalMessageBrokers(IContainerBuilder builder)
-    {
-        MessagePipeOptions options = builder.RegisterMessagePipe();
-        //Setup GlobalMessagePipe to enable diagnostics window and global function 
-        builder.RegisterBuildCallback(c => GlobalMessagePipe.SetProvider(c.AsServiceProvider()));
-        
-        builder.RegisterMessageBroker<MFInternalServicesEvent>(options);
-        EventRegistrationHelper.RegisterGlobalEventClasses(builder,options);
-    }
+        private void SetupServices(IContainerBuilder builder)
+        {
+            LifetimeServices = ServiceRegistrationHelper.RegisterServices(builder);
+            builder.RegisterEntryPoint<ServiceInitializer>(); 
+        }
+
+        private void SetupSession(IContainerBuilder builder)
+        {
+            SessionManager.CreateSession();
+        }
+
+        private void SetupGlobalMessageBrokers(IContainerBuilder builder)
+        {
+            MessagePipeOptions options = builder.RegisterMessagePipe();
+            builder.RegisterBuildCallback(c => GlobalMessagePipe.SetProvider(c.AsServiceProvider()));
+            builder.RegisterMessageBroker<MFInternalServicesEvent>(options);
+            EventRegistrationHelper.RegisterGlobalEventClasses(builder,options);
+        }
     
+    }
 }

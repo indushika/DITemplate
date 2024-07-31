@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using MonsterFactory.Events;
 using MonsterFactory.Services;
@@ -8,14 +9,15 @@ using UnityEngine;
 
 namespace MonsterFactory.TaskManagement
 {
-    public class TaskDataManager : MFService
+    
+    //#TODO Deprecate this data system
+    public class TaskDataManager : IMFService
     {
-        private readonly IDataConnector dataConnector;
+
         private readonly IAsyncPublisher<PlayerTaskBaseEvent> taskEventPublisher;
 
-        public TaskDataManager(IDataConnector dataConnector, IAsyncPublisher<PlayerTaskBaseEvent> taskEventPublisher)
+        public TaskDataManager( IAsyncPublisher<PlayerTaskBaseEvent> taskEventPublisher)
         {
-            this.dataConnector = dataConnector;
             this.taskEventPublisher = taskEventPublisher;
         }
 
@@ -23,28 +25,19 @@ namespace MonsterFactory.TaskManagement
 
         public TaskState GetTaskProgressState(string id)
         {
-            if (dataConnector.GetTaskProgressById(id) is { } progress)
-            {
-                return progress.taskState;
-            }
-
             return TaskState.NotStarted;
         }
 
         public PlayerTaskProgress GetPlayerTaskProgressById(string id)
         {
-            if (dataConnector.GetTaskProgressById(id) is { } progress)
-            {
-                return progress;
-            }
-
+    
             return null;
         }
 
         public void UpdatePlayerTaskProgress(string id, PlayerTaskProgress progress)
         {
             bool shouldPublishState = CheckForStateChange(id, progress);
-            dataConnector.SetTaskProgressById(id, progress);
+     
             if (shouldPublishState)
             {
                 taskEventPublisher.Publish(ResolveStateEvent(progress));
@@ -59,7 +52,7 @@ namespace MonsterFactory.TaskManagement
 
         private bool CheckForStateChange(string id, PlayerTaskProgress progress)
         {
-            return dataConnector.GetTaskProgressById(id)?.taskState != progress.taskState;
+            return false;
         }
 
         private PlayerTaskBaseEvent ResolveStateEvent(PlayerTaskProgress progress)
@@ -81,5 +74,11 @@ namespace MonsterFactory.TaskManagement
         }
 
         #endregion
+
+
+        UniTask[] IMFService.GetInitializeTasks()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

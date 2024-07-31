@@ -1,16 +1,13 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using VContainer;
 using VContainer.Unity;
 
 namespace MonsterFactory.Services
 {
-    public class MFService
+    public interface IMFService
     {
-     
-
-
-
-
+        public UniTask[] GetInitializeTasks();
     }
 }

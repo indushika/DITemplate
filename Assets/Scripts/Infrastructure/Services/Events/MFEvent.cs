@@ -16,6 +16,7 @@ namespace MonsterFactory.Events
             
             //Register Event types here
             RegisterEvent<TestEvent>();
+            RegisterEvent<FetchSaveData>();
 
             
             
@@ -39,6 +40,16 @@ namespace MonsterFactory.Events
 
     public class TestEvent : MFBaseEvent
     {
+    }
+
+    public class FetchSaveData : MFBaseEvent
+    {
+        public bool OverwriteExistingData { get; set; }
+        
+        public FetchSaveData(bool overwriteExistingData)
+        { 
+            OverwriteExistingData = overwriteExistingData;
+        }
     }
 
     public class PlayerTaskBaseEvent : MFBaseEvent
