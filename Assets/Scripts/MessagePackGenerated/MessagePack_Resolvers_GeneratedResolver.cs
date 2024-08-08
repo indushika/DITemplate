@@ -49,7 +49,7 @@ namespace MessagePack.Resolvers
         {
             lookup = new global::System.Collections.Generic.Dictionary<global::System.Type, int>(2)
             {
-                { typeof(global::MonsterFactory.Services.DataManagement.IMFData), 0 },
+                { typeof(global::MonsterFactory.Services.DataManagement.MFData), 0 },
                 { typeof(global::MonsterFactory.Services.DataManagement.TestData), 1 },
             };
         }
@@ -64,7 +64,7 @@ namespace MessagePack.Resolvers
 
             switch (key)
             {
-                case 0: return new MessagePack.Formatters.MonsterFactory.Services.DataManagement.IMFDataFormatter();
+                case 0: return new MessagePack.Formatters.MonsterFactory.Services.DataManagement.MFDataFormatter();
                 case 1: return new MessagePack.Formatters.MonsterFactory.Services.DataManagement.TestDataFormatter();
                 default: return null;
             }

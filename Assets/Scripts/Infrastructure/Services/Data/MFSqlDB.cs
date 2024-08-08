@@ -1,9 +1,6 @@
 ﻿using SQLite;
 using Cysharp.Threading.Tasks;
-using MessagePack;
-using MessagePack.Resolvers;
 using SQLiteNetExtensions.Attributes;
-using UnityEngine;
 
 
 namespace MonsterFactory.Services.DataManagement
@@ -18,6 +15,8 @@ namespace MonsterFactory.Services.DataManagement
 
         public UniTask<int> AddNewDataInstance(DataChunkMap data);
 
+        public UniTask CloseDbConnection();
+
         public void AddDataChunkMap(string typeString);
     }
 
@@ -31,9 +30,9 @@ namespace MonsterFactory.Services.DataManagement
             dbPath = dbFilePath;
         }
 
-        private UniTask InitializeGameTables()
+        private UniTask CreateDataChunkTable()
         {
-            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunkMap), typeof(DataChunkMap));
+            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunkMap));
         }
 
 
@@ -41,7 +40,7 @@ namespace MonsterFactory.Services.DataManagement
         {
             dbConnection = new SQLiteAsyncConnection(dbPath,
                 SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
-            return InitializeGameTables();
+            return CreateDataChunkTable();
         }
 
         public async UniTask<DataChunkMap> GetDataChunkById(string dataChunkId)
@@ -65,6 +64,15 @@ namespace MonsterFactory.Services.DataManagement
             return dbConnection.InsertAsync(data, typeof(DataChunkMap));
         }
 
+        public UniTask CloseDbConnection()
+        {
+            if (dbConnection == null)
+            {
+                return default;
+            }
+            return dbConnection.CloseAsync();
+        }
+
         public async void AddDataChunkMap(string typeString)
         {
             await dbConnection.InsertOrReplaceAsync(new DataChunkMap()
@@ -73,58 +81,4 @@ namespace MonsterFactory.Services.DataManagement
             });
         }
     }
-
-    
-    public class DataChunkMap
-    {
-        [PrimaryKey, Unique, MaxLength(64)] public string Id { get; set; }
-        
-        public byte[] DataBlob { get; set; }
-    }
-
-    public static class MFDataExtensions
-    {
-        static bool serializerRegistered = false;
-
-        public static IMFData ExtractDataObjectOfType<T>(this DataChunkMap dataChunk) where T : IMFData
-        {
-            return dataChunk.DataBlob != null
-                ? MessagePackSerializer.Deserialize<IMFData>(dataChunk.DataBlob)
-                : default;
-        }
-
-        public static byte[] SerializeDataToBytes<T>(this T data) where T : IMFData
-        {
-            return MessagePackSerializer.Serialize<IMFData>(data);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void Initialize()
-        {
-            if (!serializerRegistered)
-            {
-                StaticCompositeResolver.Instance.Register(
-                    MessagePack.Resolvers.GeneratedResolver.Instance,
-                    MessagePack.Resolvers.StandardResolver.Instance
-                );
-
-                var option = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
-
-                MessagePackSerializer.DefaultOptions = option;
-                serializerRegistered = true;
-            }
-        }
-        
-#if UNITY_EDITOR
-
-
-        [UnityEditor.InitializeOnLoadMethod]
-        static void EditorInitialize()
-        {
-            Initialize();
-        }
-
-#endif
-    }
-    
 }
