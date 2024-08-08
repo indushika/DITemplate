@@ -1,14 +1,14 @@
-﻿using MessagePack;
-
+﻿using System;
+using MessagePack;
 namespace MonsterFactory.Services.DataManagement
 {
     [Union(0, typeof(TestData))]
-    public  interface IMFData
+    public abstract class MFData
     {
     }
 
     [MessagePackObject][MFDataObject("TestData", true,true)]
-    public class TestData : IMFData
+    public class TestData : MFData
     {
         [Key(1)]
         public string dataString;

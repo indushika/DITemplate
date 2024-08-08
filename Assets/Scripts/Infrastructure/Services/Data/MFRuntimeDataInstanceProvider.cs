@@ -8,12 +8,12 @@ using VContainer;
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public class MFRuntimeDataInstanceProvider<T> : IDisposable where T : IMFData, new()
+    public class MFRuntimeDataInstanceProvider<T> : IDisposable where T : MFData, new()
     {
         private readonly IMFLocalDBService dbService;
         private IDisposable eventDisposableBag;
         protected readonly string TypeCode;
-        protected bool autoSave;
+        protected readonly bool autoFetch;
         private T dataInstance;
         private MFDataObject dataObject;
 
@@ -31,8 +31,8 @@ namespace MonsterFactory.Services.DataManagement
 
             dbService = dataManager.LocalDBService();
             DisposableBagBuilder disposableBagBuilder = DisposableBag.CreateBuilder();
-            DataProviderTypeResolver.ResolveTypeInfo(ref uniqueId, ref autoSave, ref TypeCode, ref dataObject);
-            if (autoSave)
+            DataProviderTypeResolver.ResolveTypeInfo(ref uniqueId, ref autoFetch, ref TypeCode, ref dataObject);
+            if (autoFetch)
             {
                 autoFetchSubscriber.Subscribe(InitializeDataObject).AddTo(disposableBagBuilder);
             }
@@ -69,16 +69,14 @@ namespace MonsterFactory.Services.DataManagement
             {
                 DataChunkMap dataChunkMap = await dbService.GetChunkUniqueDataFromKey(TypeCode)
                     .AttachExternalCancellation(cancellationToken);
-                if (dataChunkMap == null)
+                if (dataChunkMap != null)
                 {
-                    dbService.AddDataChunkMap(TypeCode);
+                    return await TryProcessDataChunk().AttachExternalCancellation(cancellationToken);
                 }
-
-                return await TryProcessDataChunk().AttachExternalCancellation(cancellationToken);
             }
             catch (Exception e)
             {
-                Debug.LogError($"DB Fetch {TypeCode} Unknown Error");
+                Debug.LogError($"DB Fetch {TypeCode} Unknown Error : {e}");
                 return false;
             }
 
@@ -88,7 +86,7 @@ namespace MonsterFactory.Services.DataManagement
         private async UniTask<bool> TryProcessDataChunk()
         {
             DataChunkMap dataChunk = await dbService.GetDataChunkById(TypeCode);
-            IMFData var = dataChunk.ExtractDataObjectOfType<T>();
+            MFData var = dataChunk.ExtractDataObjectOfType<T>();
             if (var is T data)
             {
                 dataInstance = data;

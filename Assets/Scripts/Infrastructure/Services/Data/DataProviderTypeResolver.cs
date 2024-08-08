@@ -8,10 +8,10 @@ namespace MonsterFactory.Services.DataManagement
     {
         private static SHA256Managed _sha256Managed;
 
-        public static void ResolveTypeInfo(ref string uniqueId, ref bool autoSave, ref string typeCode, ref MFDataObject dataObject)
+        public static void ResolveTypeInfo(ref string uniqueId, ref bool autoFetch, ref string typeCode, ref MFDataObject dataObject)
         {
             uniqueId = dataObject.UniqueId;
-            autoSave = dataObject.AutoSave;
+            autoFetch = dataObject.AutoFetch;
             if (!string.IsNullOrEmpty(uniqueId))
             {
                 _sha256Managed ??= new SHA256Managed();
