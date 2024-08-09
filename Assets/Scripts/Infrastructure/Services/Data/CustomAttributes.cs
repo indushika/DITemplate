@@ -1,6 +1,5 @@
 ﻿namespace MonsterFactory.Services.DataManagement
 {
-    
     [System.AttributeUsage(System.AttributeTargets.Class |
                            System.AttributeTargets.Struct)
     ]
@@ -16,20 +15,21 @@
             this.autoFetch = autoFetch;
             this.autoSave = autoSave;
         }
-        
+
         public bool AutoFetch => autoFetch;
 
         public string UniqueId => uniqueId;
-        
+
         public bool AutoSave => autoSave;
     }
-    
+
     [System.AttributeUsage(System.AttributeTargets.Class |
                            System.AttributeTargets.Struct)
     ]
     public class LocallyStoredDataObject : MFDataObject
     {
-        public LocallyStoredDataObject(string uniqueId, bool autoSave = false, bool autoFetch = false) : base(uniqueId, autoFetch, true)
+        public LocallyStoredDataObject(string uniqueId, bool autoSave = false, bool autoFetch = false) : base(uniqueId,
+            autoFetch, true)
         {
         }
     }

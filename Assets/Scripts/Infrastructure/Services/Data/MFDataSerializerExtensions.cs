@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public static class MFDataExtensions
+    public static class MFDataSerializerExtensions
     {
-        static bool serializerRegistered = false;
+        static bool _serializerRegistered = false;
 
         public static MFData ExtractDataObjectOfType<T>(this DataChunkMap dataChunk) where T : MFData
         {
@@ -20,23 +20,37 @@ namespace MonsterFactory.Services.DataManagement
             return MessagePackSerializer.Serialize<MFData>(data);
         }
 
+        public static MFDataObject GetDataAttribute<T>() where T : MFData
+        {
+            object[] attributes = typeof(T).GetCustomAttributes(typeof(MFDataObject), true);
+            foreach (var attribute in attributes)
+            {
+                if (attribute is MFDataObject dataObjectAttribute)
+                {
+                    return dataObjectAttribute;
+                }
+            }
+
+            return null;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize()
         {
-            if (!serializerRegistered)
+            if (!_serializerRegistered)
             {
                 StaticCompositeResolver.Instance.Register(
-                    MessagePack.Resolvers.GeneratedResolver.Instance,
-                    MessagePack.Resolvers.StandardResolver.Instance
+                    GeneratedResolver.Instance,
+                    StandardResolver.Instance
                 );
 
                 var option = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
 
                 MessagePackSerializer.DefaultOptions = option;
-                serializerRegistered = true;
+                _serializerRegistered = true;
             }
         }
-        
+
 #if UNITY_EDITOR
 
 
