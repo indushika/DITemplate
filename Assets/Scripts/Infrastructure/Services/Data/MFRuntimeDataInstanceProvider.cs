@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
@@ -10,31 +11,49 @@ namespace MonsterFactory.Services.DataManagement
 {
     public class MFRuntimeDataInstanceProvider<T> : IDisposable where T : MFData, new()
     {
-        private readonly IMFLocalDBService dbService;
-        private IDisposable eventDisposableBag;
-        protected readonly string TypeCode;
-        protected readonly bool autoFetch;
+        private readonly ITypeSerializedDBService dbService;
+        private readonly IDisposable eventDisposableBag;
+        private readonly string typeCode;
+
         private T dataInstance;
-        private MFDataObject dataObject;
+
+        private void DataInstanceOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!dataInstanceChanged)
+            {
+                dataInstanceChanged = true;
+            }
+        }
+
+        private bool dataInstanceChanged;
+        private readonly bool subscribeToAutoLoadEvent, subscribeToAutoSaveEvent;
 
         [Inject]
-        public MFRuntimeDataInstanceProvider(IDataManager dataManager,
-            IAsyncSubscriber<FetchSaveData> autoFetchSubscriber)
+        public MFRuntimeDataInstanceProvider(
+            ITypeSerializedDBService typeSerializedDBService,
+            IAsyncSubscriber<DataEventLoadData> loadDataSubscriber,
+            IAsyncSubscriber<DataEventSaveData> saveDataSubscriber)
         {
-            dataObject = GetDataAttribute();
+            var dataObject = MFDataSerializerExtensions.GetDataAttribute<T>();
             string uniqueId = "";
             if (dataObject == null)
             {
-                dataInstance = new T();
+                DataInstance = new T();
                 return;
             }
 
-            dbService = dataManager.LocalDBService();
+            dbService = typeSerializedDBService;
             DisposableBagBuilder disposableBagBuilder = DisposableBag.CreateBuilder();
-            DataProviderTypeResolver.ResolveTypeInfo(ref uniqueId, ref autoFetch, ref TypeCode, ref dataObject);
-            if (autoFetch)
+            DataProviderTypeResolver.ResolveTypeInfo(ref uniqueId, ref subscribeToAutoLoadEvent,
+                ref subscribeToAutoSaveEvent, ref typeCode, ref dataObject);
+            if (subscribeToAutoLoadEvent)
             {
-                autoFetchSubscriber.Subscribe(InitializeDataObject).AddTo(disposableBagBuilder);
+                loadDataSubscriber.Subscribe(LoadOrInitializeData).AddTo(disposableBagBuilder);
+            }
+
+            if (subscribeToAutoSaveEvent)
+            {
+                saveDataSubscriber.Subscribe(WriteChangesToDB).AddTo(disposableBagBuilder);
             }
 
             eventDisposableBag = disposableBagBuilder.Build();
@@ -42,72 +61,32 @@ namespace MonsterFactory.Services.DataManagement
 
         public ref T DataInstance => ref dataInstance;
 
-        public async UniTask UpdateDataInstance()
-        {
-            await dbService.WriteDataChunkToId(TypeCode, dataInstance?.SerializeDataToBytes());
-        }
 
-        private async UniTask InitializeDataObject(FetchSaveData eventData, CancellationToken cancellationToken)
+        private async UniTask LoadOrInitializeData(DataEventLoadData eventDataEventLoadData,
+            CancellationToken cancellationToken)
         {
-            if (dataInstance != null && !eventData.OverwriteExistingData)
+            if (DataInstance != null && !eventDataEventLoadData.CanOverwrite)
             {
                 return;
             }
-
-            bool fetchState = await FetchDataFromDb(cancellationToken).AttachExternalCancellation(cancellationToken);
-            if (!fetchState)
+            dataInstance = await dbService.FetchDataFromDb<T>(typeCode, cancellationToken)
+                .AttachExternalCancellation(cancellationToken);
+            if (dataInstance == null)
             {
                 dataInstance = new T();
-                dbService.AddDataChunkMap(TypeCode);
+                await dbService.WriteDataToDb(typeCode, cancellationToken, dataInstance);
             }
+            if (dataInstance != null) dataInstance.PropertyChanged += DataInstanceOnPropertyChanged;
         }
 
-
-        private async UniTask<bool> FetchDataFromDb(CancellationToken cancellationToken)
+        private async UniTask WriteChangesToDB(DataEventSaveData saveDataEvent, CancellationToken cancellationToken)
         {
-            try
+            if (dataInstanceChanged || saveDataEvent.CanForceSave)
             {
-                DataChunkMap dataChunkMap = await dbService.GetChunkUniqueDataFromKey(TypeCode)
-                    .AttachExternalCancellation(cancellationToken);
-                if (dataChunkMap != null)
-                {
-                    return await TryProcessDataChunk().AttachExternalCancellation(cancellationToken);
-                }
+                await dbService.WriteDataToDb(typeCode, cancellationToken, dataInstance);
             }
-            catch (Exception e)
-            {
-                Debug.LogError($"DB Fetch {TypeCode} Unknown Error : {e}");
-                return false;
-            }
-
-            return false;
         }
 
-        private async UniTask<bool> TryProcessDataChunk()
-        {
-            DataChunkMap dataChunk = await dbService.GetDataChunkById(TypeCode);
-            MFData var = dataChunk.ExtractDataObjectOfType<T>();
-            if (var is T data)
-            {
-                dataInstance = data;
-            }
-
-            return DataInstance != null;
-        }
-
-        private static MFDataObject GetDataAttribute()
-        {
-            object[] attributes = typeof(T).GetCustomAttributes(typeof(MFDataObject), true);
-            foreach (var attribute in attributes)
-            {
-                if (attribute is MFDataObject dataObjectAttribute)
-                {
-                    return dataObjectAttribute;
-                }
-            }
-
-            return null;
-        }
 
         public void Dispose()
         {

@@ -17,7 +17,7 @@ namespace Infrastructure.Systems
 
         protected override void Configure(IContainerBuilder builder)
         {
-            MFDataExtensions.Initialize();
+            MFDataSerializerExtensions.Initialize();
             SetupGlobalMessageBrokers(builder);
             SetupSession(builder);
             SetupServices(builder);

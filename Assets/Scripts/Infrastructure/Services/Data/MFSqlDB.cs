@@ -1,26 +1,24 @@
 ﻿using SQLite;
 using Cysharp.Threading.Tasks;
-using SQLiteNetExtensions.Attributes;
 
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public interface IMFLocalDBService
+    public interface IMFSerializedDB
     {
         public UniTask Initialize();
         public UniTask<DataChunkMap> GetDataChunkById(string dataChunkId);
 
-        public UniTask<int> WriteDataChunkToId(string dataChunkId, byte[] dataBlob);
+        public UniTask<int> WriteSingleDataChunkToId(string dataChunkId, byte[] dataBlob);
+        
         public UniTask<DataChunkMap> GetChunkUniqueDataFromKey(string key);
 
         public UniTask<int> AddNewDataInstance(DataChunkMap data);
 
         public UniTask CloseDbConnection();
-
-        public void AddDataChunkMap(string typeString);
     }
 
-    public class MFSqlDB : IMFLocalDBService
+    public class MFSqlDB : IMFSerializedDB
     {
         private readonly string dbPath;
         private SQLiteAsyncConnection dbConnection;
@@ -48,7 +46,7 @@ namespace MonsterFactory.Services.DataManagement
             return await dbConnection.GetAsync<DataChunkMap>(dataChunkId);
         }
 
-        public UniTask<int> WriteDataChunkToId(string typeCode, byte[] dataBlob)
+        public UniTask<int> WriteSingleDataChunkToId(string typeCode, byte[] dataBlob)
         {
             return dbConnection.InsertOrReplaceAsync(new DataChunkMap() { DataBlob = dataBlob, Id = typeCode },
                 typeof(DataChunkMap));
@@ -71,14 +69,6 @@ namespace MonsterFactory.Services.DataManagement
                 return default;
             }
             return dbConnection.CloseAsync();
-        }
-
-        public async void AddDataChunkMap(string typeString)
-        {
-            await dbConnection.InsertOrReplaceAsync(new DataChunkMap()
-            {
-                Id = typeString
-            });
         }
     }
 }

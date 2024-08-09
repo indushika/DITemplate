@@ -19,7 +19,7 @@ namespace MonsterFactory.Services
         {
             List<Type> servicesList = new List<Type>();
             //Add other services to be registered here
-            RegisterService<DataManager>(containerBuilder, typeof(IDataManager), ref servicesList);
+            RegisterService<MFLocalDBService>(containerBuilder, typeof(ITypeSerializedDBService), ref servicesList);
             
             return servicesList;
         }
@@ -46,19 +46,23 @@ namespace MonsterFactory.Services
     public class TestClass : IAsyncStartable
     {
         private readonly MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider;
-        private readonly IAsyncPublisher<FetchSaveData> fetchEvent;
+        private readonly IAsyncPublisher<DataEventLoadData> fetchEvent;
+        private readonly IAsyncPublisher<DataEventSaveData> saveDataPublisher;
 
         [Inject]
-        public TestClass(MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider, IAsyncPublisher<FetchSaveData> fetchEvent)
+        public TestClass(MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider, IAsyncPublisher<DataEventLoadData> fetchEvent, IAsyncPublisher<DataEventSaveData> saveDataPublisher)
         {
             this.testDataInstanceProvider = testDataInstanceProvider;
             this.fetchEvent = fetchEvent;
+            this.saveDataPublisher = saveDataPublisher;
         }
         
 
         public async UniTask StartAsync(CancellationToken cancellation)
         {
-            await fetchEvent.PublishAsync(new FetchSaveData(true), cancellation);
+            await fetchEvent.PublishAsync(new DataEventLoadData(true), cancellation);
+            //testDataInstanceProvider.DataInstance.DataString = "TEST";
+            //await saveDataPublisher.PublishAsync(new DataEventSaveData(false));
             Debug.Log(testDataInstanceProvider.DataInstance.DataString);
         }
     }
