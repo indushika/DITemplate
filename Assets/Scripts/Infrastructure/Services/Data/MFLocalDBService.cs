@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -9,56 +11,76 @@ namespace MonsterFactory.Services.DataManagement
 {
     public interface ITypeSerializedDBService
     {
-        public IMFSerializedDB LocalDBService();
+        /// <summary>
+        /// Fetches data of type T from the runtime database.
+        /// </summary>
+        /// <param name="typeCode">The code identifying the type of data.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <typeparam name="T">The type of data to fetch.</typeparam>
+        /// <returns>A UniTask representing the asynchronous operation.</returns>
+        public UniTask<T> FetchDataFromRuntimeDatabase<T>(string typeCode, CancellationToken cancellationToken) where T : MFData;
 
-        public UniTask<T> FetchDataFromDb<T>(string typeCode, CancellationToken cancellationToken) where T : MFData;
-
-        public UniTask<bool> WriteDataToDb<T>(string typeCode, CancellationToken cancellationToken, T dataInstance)
+        /// <summary>
+        /// Writes data of type T to the runtime database.
+        /// </summary>
+        /// <typeparam name="T">The type of data to write.</typeparam>
+        /// <param name="typeCode">The code identifying the type of data.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <param name="dataInstance">The instance of data to write.</param>
+        /// <returns>True : If write operation succeeded, False : Write operation failed </returns>
+        public UniTask<bool> WriteDataToRuntimeDatabase<T>(string typeCode, CancellationToken cancellationToken, T dataInstance)
             where T : MFData;
     }
 
     public class MFLocalDBService : IMFService, ITypeSerializedDBService
     {
-        private IMFSerializedDB localDB;
-
-
+        private IMFSerializedDBConnection readWriteDBConnection;
+        private MFReadOnlyDbDataCache readOnlyDbDataCache;
+        private const string AutoLoadDbname =  "AutoLoadDb";
+        
         #region Init
 
         [Inject]
         public MFLocalDBService()
         {
         }
-
-        private UniTask InitializeDataSystems()
-        {
-            localDB = new MFSqlDB(DataManagerDirectoryHelper.DataObjectPathForUserId("TestUser"));
-            return localDB.Initialize();
-        }
-
+        
         public UniTask[] GetInitializeTasks()
         {
-            return new UniTask[]
+            return new[]
             {
-                InitializeDataSystems()
+                //InitializeReadOnlyDataSystems(),
+                InitializeRuntimeDataSystems()
             };
         }
 
-
-        public IMFSerializedDB LocalDBService()
+        private UniTask InitializeRuntimeDataSystems()
         {
-            return localDB;
+            readWriteDBConnection = new MFSqlDBConnection(DataManagerDirectoryHelper.DBFilePathForUserId("TestUser"));
+            return readWriteDBConnection.Initialize();
+        }
+        
+        private async UniTask InitializeReadOnlyDataSystems()
+        {
+            readOnlyDbDataCache = new MFReadOnlyDbDataCache();
+            await readOnlyDbDataCache.TryQueue(AutoLoadDbname);
         }
 
         #endregion
 
         #region API
+        
+        public UniTask<T> FetchDataFromRuntimeDatabase<T>(string typeCode, CancellationToken cancellationToken) where T : MFData
+        {
+            return FetchDataFromDb<T>(typeCode, cancellationToken, readWriteDBConnection);
+        }
 
-        public async UniTask<T> FetchDataFromDb<T>(string typeCode, CancellationToken cancellationToken)
+        private async UniTask<T> FetchDataFromDb<T>(string typeCode, CancellationToken cancellationToken, IMFSerializedDBConnection dbConnection)
             where T : MFData
         {
             try
             {
-                DataChunkMap dataChunkMap = await localDB.GetChunkUniqueDataFromKey(typeCode)
+                DataChunkMap dataChunkMap = await dbConnection.GetChunkUniqueDataFromKey(typeCode)
                     .AttachExternalCancellation(cancellationToken);
                 if (dataChunkMap != null)
                 {
@@ -74,12 +96,12 @@ namespace MonsterFactory.Services.DataManagement
             return null;
         }
 
-        public async UniTask<bool> WriteDataToDb<T>(string typeCode, CancellationToken cancellationToken,
+        public async UniTask<bool> WriteDataToRuntimeDatabase<T>(string typeCode, CancellationToken cancellationToken,
             T dataInstance) where T : MFData
         {
             try
             {
-                return await localDB.WriteSingleDataChunkToId(typeCode, dataInstance?.SerializeDataToBytes())
+                return await readWriteDBConnection.WriteSingleDataChunkToId(typeCode, dataInstance?.SerializeDataToBytes())
                     .AttachExternalCancellation(cancellationToken) > 0;
             }
             catch (OperationCanceledException e)
@@ -101,7 +123,7 @@ namespace MonsterFactory.Services.DataManagement
 
         private async UniTask<T> TryProcessDataChunk<T>(string typeCode) where T : MFData
         {
-            DataChunkMap dataChunk = await localDB.GetDataChunkById(typeCode);
+            DataChunkMap dataChunk = await readWriteDBConnection.GetDataChunkById(typeCode);
             MFData var = dataChunk.ExtractDataObjectOfType<T>();
             if (var is T data)
             {

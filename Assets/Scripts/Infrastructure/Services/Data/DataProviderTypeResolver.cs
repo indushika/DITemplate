@@ -8,16 +8,34 @@ namespace MonsterFactory.Services.DataManagement
     {
         private static SHA256Managed _sha256Managed;
 
-        public static void ResolveTypeInfo(ref string uniqueId, ref bool autoLoad, ref bool autoSave,
-            ref string typeCode, ref MFDataObject dataObject)
+        /// <summary>
+        /// Resolve the MFDataObject attribute related data
+        /// Sets the save and load flags if attribute is found.
+        /// Generates a UID
+        /// </summary>
+        /// <param name="autoLoad"> ref AutoLoad : Sets Autoload flag</param>
+        /// <param name="autoSave">ref AutoSave : Sets Autosave flag</param>
+        /// <param name="typeCode"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static MFDataObject ResolveTypeInfo<T>(ref string typeCode,ref bool autoLoad, ref bool autoSave)
         {
-            uniqueId = dataObject.UniqueId;
-            autoLoad = dataObject.AutoFetch;
-            autoSave = dataObject.AutoSave;
-            if (!string.IsNullOrEmpty(uniqueId))
+            MFDataObject dataObject = MFDataSerializerExtensions.GetDataAttribute<T>(out string name);
+            string uid = null;
+            if (dataObject != null)
             {
-                GenerateUidFromDataType(uniqueId, out typeCode);
+                uid = dataObject.UniqueId;
+                autoLoad = dataObject.AutoFetch;
+                autoSave = dataObject.AutoSave;
             }
+            GenerateUidFromDataType( string.IsNullOrEmpty(uid)? name : uid, out typeCode);
+            return dataObject;
+        }
+        
+        public static MFDataObject ResolveTypeInfo<T>(ref string typeCode, ref bool autoLoad)
+        {
+            bool autoSave = default; 
+            return ResolveTypeInfo<T>(ref typeCode, ref autoLoad, ref autoSave);
         }
 
         private static void GenerateUidFromDataType(string uniqueId, out string typeCode)

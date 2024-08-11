@@ -1,10 +1,11 @@
-﻿using SQLite;
+﻿using System.Collections.Generic;
+using SQLite;
 using Cysharp.Threading.Tasks;
 
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public interface IMFSerializedDB
+    public interface IMFSerializedDBConnection
     {
         public UniTask Initialize();
         public UniTask<DataChunkMap> GetDataChunkById(string dataChunkId);
@@ -13,29 +14,29 @@ namespace MonsterFactory.Services.DataManagement
         
         public UniTask<DataChunkMap> GetChunkUniqueDataFromKey(string key);
 
+        public UniTask<List<DataChunkMap>> GetAllDataFromTable();
+
         public UniTask<int> AddNewDataInstance(DataChunkMap data);
 
         public UniTask CloseDbConnection();
     }
 
-    public class MFSqlDB : IMFSerializedDB
+    public class MFSqlDBConnection : IMFSerializedDBConnection
     {
         private readonly string dbPath;
         private SQLiteAsyncConnection dbConnection;
 
-        public MFSqlDB(string dbFilePath)
+        public MFSqlDBConnection(string dbFilePath)
         {
             dbPath = dbFilePath;
         }
 
-        private UniTask CreateDataChunkTable()
-        {
-            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunkMap));
-        }
-
-
         public UniTask Initialize()
         {
+            if (dbConnection != null)
+            {
+                return default;
+            }
             dbConnection = new SQLiteAsyncConnection(dbPath,
                 SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
             return CreateDataChunkTable();
@@ -57,6 +58,11 @@ namespace MonsterFactory.Services.DataManagement
             return await dbConnection.GetAsync<DataChunkMap>(key);
         }
 
+        public async UniTask<List<DataChunkMap>> GetAllDataFromTable()
+        {
+            return await dbConnection.Table<DataChunkMap>().ToListAsync();
+        }
+
         public UniTask<int> AddNewDataInstance(DataChunkMap data)
         {
             return dbConnection.InsertAsync(data, typeof(DataChunkMap));
@@ -64,11 +70,12 @@ namespace MonsterFactory.Services.DataManagement
 
         public UniTask CloseDbConnection()
         {
-            if (dbConnection == null)
-            {
-                return default;
-            }
-            return dbConnection.CloseAsync();
+            return dbConnection?.CloseAsync() ?? default;
+        }
+        
+        private UniTask CreateDataChunkTable()
+        {
+            return dbConnection.CreateTablesAsync(CreateFlags.None, typeof(DataChunkMap));
         }
     }
 }
