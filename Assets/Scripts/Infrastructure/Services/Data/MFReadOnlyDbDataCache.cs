@@ -5,20 +5,6 @@ using UnityEngine;
 
 namespace MonsterFactory.Services.DataManagement
 {
-    public class MFReadOnlyBinaryDataQueue : Dictionary<string, byte[]>
-    {
-        public bool TryDeque(string id, out byte[] bytes)
-        {
-            if (TryGetValue(id, out bytes))
-            {
-                Remove(id);
-                return true;
-            }
-            return false;
-        }
-    }
-
-
     public class MFReadOnlyDbDataCache : Dictionary<string, MFReadOnlyBinaryDataQueue>
     {
         public async UniTask TryQueue(string dbFileName)

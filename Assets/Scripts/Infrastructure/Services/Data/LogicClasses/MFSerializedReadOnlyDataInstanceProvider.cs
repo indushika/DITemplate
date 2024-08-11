@@ -16,7 +16,8 @@ namespace MonsterFactory.Services.DataManagement
         private readonly string typeCode;
         private readonly string dbFile;
 
-        public T DataInstance;
+        private T dataInstance;
+        public ref T DataInstance => ref dataInstance;
         
 
         [Inject]
@@ -42,8 +43,16 @@ namespace MonsterFactory.Services.DataManagement
 
         private UniTask LoadReadOnlyData(DataEventLoadData loadDataEvent, CancellationToken cancellationToken)
         {
+            LoadDataFromCache();
             return default;
         }
+
+        private void LoadDataFromCache()
+        {
+            dataInstance = typeSerializedDBService.FetchReadOnlyDataFromDB<T>(dbFile, typeCode);
+        }
+        
+        
         public void Dispose()
         {
             // TODO release managed resources here

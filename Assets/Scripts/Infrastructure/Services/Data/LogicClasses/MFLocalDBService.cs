@@ -30,6 +30,8 @@ namespace MonsterFactory.Services.DataManagement
         /// <returns>True : If write operation succeeded, False : Write operation failed </returns>
         public UniTask<bool> WriteDataToRuntimeDatabase<T>(string typeCode, CancellationToken cancellationToken, T dataInstance)
             where T : MFData;
+
+        public T FetchReadOnlyDataFromDB<T>(string dbName, string dataId) where T : MFData;
     }
 
     public class MFLocalDBService : IMFService, ITypeSerializedDBService
@@ -116,6 +118,18 @@ namespace MonsterFactory.Services.DataManagement
             }
         }
 
+        public T FetchReadOnlyDataFromDB<T>(string dbName, string dataId) where T : MFData
+        {
+            if(readOnlyDbDataCache.TryGetValue(dbName, out MFReadOnlyBinaryDataQueue value))
+            {
+                if (value.TryDeque(dataId, out byte[] bytes))
+                {
+                    return bytes.ExtractDataObjectOfType<T>();
+                }
+            }
+            return null;
+        }
+
         #endregion
 
 
@@ -124,7 +138,7 @@ namespace MonsterFactory.Services.DataManagement
         private async UniTask<T> TryProcessDataChunk<T>(string typeCode) where T : MFData
         {
             DataChunkMap dataChunk = await readWriteDBConnection.GetDataChunkById(typeCode);
-            MFData var = dataChunk.ExtractDataObjectOfType<T>();
+            MFData var = dataChunk.ExtractDataObjectOfType();
             if (var is T data)
             {
                 return data;

@@ -8,11 +8,16 @@ namespace MonsterFactory.Services.DataManagement
     {
         static bool _serializerRegistered = false;
 
-        public static MFData ExtractDataObjectOfType<T>(this DataChunkMap dataChunk) where T : MFData
+        public static MFData ExtractDataObjectOfType(this DataChunkMap dataChunk)
         {
             return dataChunk.DataBlob != null
                 ? MessagePackSerializer.Deserialize<MFData>(dataChunk.DataBlob)
                 : default;
+        }
+        
+        public static T ExtractDataObjectOfType<T>(this byte[] dataChunk) where T : MFData
+        {
+            return MessagePackSerializer.Deserialize<T>(dataChunk);
         }
 
         public static byte[] SerializeDataToBytes<T>(this T data) where T : MFData
