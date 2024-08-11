@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using MessagePack;
 using Unity.VisualScripting;
 
 namespace MonsterFactory.Services.DataManagement
 {
+    
     [Union(0, typeof(TestData))]
     public abstract class MFData : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         
-        protected bool SetField<T>(ref T field, T value)
+        protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            if (EqualityComparer<T>.Default.Equals(field, value))
+            {
+                return;
+            }
             field = value;
             PropertyChanged?.Invoke(null, null);
-            return true;
         }
     }
 
@@ -34,18 +38,8 @@ namespace MonsterFactory.Services.DataManagement
         }
     }
 
-
-    [MessagePackObject][MFDataObject("TestData" , true,true)]
-    public readonly struct IndexedReadOnlyData<T> where T : MFData
+    [AutoLoadDbObjects(uniqueId:"TestReadOnlyData")]
+    public class TestReadOnlyData : MFData
     {
-        public readonly IReadOnlyDictionary<int, T> ReadOnlyDataDictionary;
-    }
-
-
-    
-    public class NPCStatsTypeData : MFData
-    {
-        public string Description;
-        public string ToolTipText;
     }
 }

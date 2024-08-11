@@ -20,9 +20,11 @@ namespace MonsterFactory.Services.DataManagement
             return MessagePackSerializer.Serialize<MFData>(data);
         }
 
-        public static MFDataObject GetDataAttribute<T>() where T : MFData
+        public static MFDataObject GetDataAttribute<T>(out string name)
         {
-            object[] attributes = typeof(T).GetCustomAttributes(typeof(MFDataObject), true);
+            var type = typeof(T);
+            name = type.Name;
+            object[] attributes = type.GetCustomAttributes(typeof(MFDataObject), true);
             foreach (var attribute in attributes)
             {
                 if (attribute is MFDataObject dataObjectAttribute)
