@@ -1,8 +1,9 @@
 ﻿using MessagePack;
+using System.Collections.Generic;
 
 namespace MonsterFactory.Services.DataManagement
 {
-    [Union(0, typeof(TestData))]
+    [Union(0, typeof(RuntimeGameData))]
     public  interface IMFData
     {
     }
@@ -12,7 +13,10 @@ namespace MonsterFactory.Services.DataManagement
     {
         [Key(1)]
         public string dataString;
-        
+        [Key(2)]
+        public List<int> npcIds = default;
+
+
         [IgnoreMember]
         public string DataString
         {

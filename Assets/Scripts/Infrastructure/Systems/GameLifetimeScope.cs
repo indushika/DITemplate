@@ -20,14 +20,20 @@ namespace Infrastructure.Systems
             MFDataExtensions.Initialize();
             SetupGlobalMessageBrokers(builder);
             SetupSession(builder);
+            SetupReadOnlyData(builder);
             SetupServices(builder);
             SetupDataProviders(builder);
-            builder.RegisterEntryPoint<TestClass>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GameInitializer>(Lifetime.Singleton);
         }
 
         private void SetupDataProviders(IContainerBuilder builder)
         {
             RuntimeDataProviderRegistrationHelper.RegisterDataProviders(builder);
+        }
+
+        private void SetupReadOnlyData(IContainerBuilder builder)
+        {
+            builder.Register<ReadOnlyGameData>(Lifetime.Singleton);
         }
 
         private void SetupServices(IContainerBuilder builder)

@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using MessagePipe;
-using MonsterFactory.Events;
 using MonsterFactory.Services.DataManagement;
-using UnityEngine;
 using VContainer;
-using VContainer.Unity;
 
 namespace MonsterFactory.Services
 {
@@ -20,6 +14,10 @@ namespace MonsterFactory.Services
             List<Type> servicesList = new List<Type>();
             //Add other services to be registered here
             RegisterService<DataManager>(containerBuilder, typeof(IDataManager), ref servicesList);
+            RegisterService<InventoryManager>(containerBuilder, typeof(IInventoryManager), ref servicesList);
+            RegisterService<BuildingManager>(containerBuilder, typeof(IBuildingManager), ref servicesList);
+            RegisterService<NPCManager>(containerBuilder, typeof(INPCManager), ref servicesList);
+            RegisterService<NPCAssignmentManager>(containerBuilder, typeof (INPCAssignmentManager), ref servicesList);
             
             return servicesList;
         }
@@ -40,26 +38,6 @@ namespace MonsterFactory.Services
         public static void RegisterDataProviders(IContainerBuilder containerBuilder)
         {
             containerBuilder.Register(typeof(MFRuntimeDataInstanceProvider<>), Lifetime.Singleton);
-        }
-    }
-
-    public class TestClass : IAsyncStartable
-    {
-        private readonly MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider;
-        private readonly IAsyncPublisher<FetchSaveData> fetchEvent;
-
-        [Inject]
-        public TestClass(MFRuntimeDataInstanceProvider<TestData> testDataInstanceProvider, IAsyncPublisher<FetchSaveData> fetchEvent)
-        {
-            this.testDataInstanceProvider = testDataInstanceProvider;
-            this.fetchEvent = fetchEvent;
-        }
-        
-
-        public async UniTask StartAsync(CancellationToken cancellation)
-        {
-            await fetchEvent.PublishAsync(new FetchSaveData(true), cancellation);
-            Debug.Log(testDataInstanceProvider.DataInstance.DataString);
         }
     }
 }
