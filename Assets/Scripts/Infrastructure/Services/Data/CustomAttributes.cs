@@ -1,9 +1,6 @@
 ﻿namespace MonsterFactory.Services.DataManagement
 {
-    
-    [System.AttributeUsage(System.AttributeTargets.Class |
-                           System.AttributeTargets.Struct)
-    ]
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
     public class MFDataObject : System.Attribute
     {
         private readonly string uniqueId;
@@ -16,20 +13,29 @@
             this.autoFetch = autoFetch;
             this.autoSave = autoSave;
         }
-        
+
         public bool AutoFetch => autoFetch;
 
         public string UniqueId => uniqueId;
-        
+
         public bool AutoSave => autoSave;
     }
-    
-    [System.AttributeUsage(System.AttributeTargets.Class |
-                           System.AttributeTargets.Struct)
-    ]
-    public class LocallyStoredDataObject : MFDataObject
+
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
+    public abstract class ReadOnlyDBObject : MFDataObject
     {
-        public LocallyStoredDataObject(string uniqueId, bool autoSave = false, bool autoFetch = false) : base(uniqueId, autoFetch, true)
+        protected ReadOnlyDBObject(string uniqueId, string dBObjectName, bool autoFetch) : base(uniqueId,
+            autoFetch, false)
+        { 
+            DBObjectName = dBObjectName;
+        }
+        public string DBObjectName { get; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
+    public class AutoLoadDbObjects : ReadOnlyDBObject
+    {
+        private const string DBFileName = "AutoLoadDataMap";
+        public AutoLoadDbObjects(string uniqueId) : base(uniqueId, DBFileName, true)
         {
         }
     }

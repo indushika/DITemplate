@@ -36,4 +36,5 @@ Event Framework : https://github.com/Cysharp/MessagePipe
 ## Data System
 - Data system phase 1 was to use a SQL db to store serialized data. I'm not taking full advantage of having a DB in this version but good example for what I want to use it for. 
 
-  
+### License
+MIT

@@ -13,7 +13,7 @@
 
 namespace MessagePack.Formatters.MonsterFactory.Services.DataManagement
 {
-    public sealed class IMFDataFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::MonsterFactory.Services.DataManagement.IMFData>
+    public sealed class IMFDataFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::MonsterFactory.Services.DataManagement.MFData>
     {
         private readonly global::System.Collections.Generic.Dictionary<global::System.RuntimeTypeHandle, global::System.Collections.Generic.KeyValuePair<int, int>> typeToKeyAndJumpMap;
         private readonly global::System.Collections.Generic.Dictionary<int, int> keyToJumpMap;
@@ -30,7 +30,7 @@ namespace MessagePack.Formatters.MonsterFactory.Services.DataManagement
             };
         }
 
-        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::MonsterFactory.Services.DataManagement.IMFData value, global::MessagePack.MessagePackSerializerOptions options)
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::MonsterFactory.Services.DataManagement.MFData value, global::MessagePack.MessagePackSerializerOptions options)
         {
             global::System.Collections.Generic.KeyValuePair<int, int> keyValuePair;
             if (value != null && this.typeToKeyAndJumpMap.TryGetValue(value.GetType().TypeHandle, out keyValuePair))
@@ -52,7 +52,7 @@ namespace MessagePack.Formatters.MonsterFactory.Services.DataManagement
             writer.WriteNil();
         }
 
-        public global::MonsterFactory.Services.DataManagement.IMFData Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        public global::MonsterFactory.Services.DataManagement.MFData Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
         {
             if (reader.TryReadNil())
             {
@@ -72,11 +72,11 @@ namespace MessagePack.Formatters.MonsterFactory.Services.DataManagement
                 key = -1;
             }
 
-            global::MonsterFactory.Services.DataManagement.IMFData result = null;
+            global::MonsterFactory.Services.DataManagement.MFData result = null;
             switch (key)
             {
                 case 0:
-                    result = (global::MonsterFactory.Services.DataManagement.IMFData)global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::MonsterFactory.Services.DataManagement.TestData>(options.Resolver).Deserialize(ref reader, options);
+                    result = (global::MonsterFactory.Services.DataManagement.MFData)global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::MonsterFactory.Services.DataManagement.TestData>(options.Resolver).Deserialize(ref reader, options);
                     break;
                 default:
                     reader.Skip();

@@ -1,11 +1,10 @@
 {
   "dependencies": {
-    "com.cysharp.mastermemory": "https://github.com/Cysharp/MasterMemory.git?path=/src/MasterMemory.Unity/Assets/Scripts/MasterMemory",
+    "ayellowpaper.serialized-dictionary": "https://github.com/ayellowpaper/SerializedDictionary.git",
     "com.cysharp.messagepipe": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe",
     "com.cysharp.messagepipe.vcontainer": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe.VContainer",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.neuecc.messagepack": "https://github.com/neuecc/MessagePack-CSharp.git?path=/src/MessagePack.UnityClient/Assets/Scripts/MessagePack#v2.5.140",
-    "ayellowpaper.serialized-dictionary": "https://github.com/ayellowpaper/SerializedDictionary.git",
     "com.unity.collab-proxy": "2.3.1",
     "com.unity.feature.development": "1.0.1",
     "com.unity.nuget.newtonsoft-json": "3.2.1",

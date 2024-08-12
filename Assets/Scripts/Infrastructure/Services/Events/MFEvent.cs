@@ -16,17 +16,13 @@ namespace MonsterFactory.Events
             
             //Register Event types here
             RegisterEvent<TestEvent>();
-            RegisterEvent<FetchSaveData>();
+            RegisterEvent<DataEventLoadData>();
+            RegisterEvent<DataEventSaveData>();
 
             
             
             EventRegistrationHelper.builder = null;
             EventRegistrationHelper.options = null;
-        }
-
-        public static void RegisterOpeningSceneEvents(IContainerBuilder builder, MessagePipeOptions options)
-        {
-            
         }
     }
 }
@@ -41,54 +37,28 @@ namespace MonsterFactory.Events
     public class TestEvent : MFBaseEvent
     {
     }
+    
+    #region DataSyatem
 
-    public class FetchSaveData : MFBaseEvent
+    public class DataEventLoadData : MFBaseEvent
     {
-        public bool OverwriteExistingData { get; set; }
         
-        public FetchSaveData(bool overwriteExistingData)
+        public bool CanOverwrite { get; }
+        public DataEventLoadData(bool canOverwrite)
         { 
-            OverwriteExistingData = overwriteExistingData;
+            CanOverwrite = canOverwrite;
         }
     }
 
-    public class PlayerTaskBaseEvent : MFBaseEvent
+    public class DataEventSaveData : MFBaseEvent
     {
-        public readonly string Id;
-
-        public PlayerTaskBaseEvent(string Id)
+        public bool CanForceSave { get; }
+        public DataEventSaveData(bool canForceSave)
         {
-            this.Id = Id;
+            CanForceSave = canForceSave;
         }
     }
     
-    public class PlayerTaskCompleted: PlayerTaskBaseEvent
-    {
-        public PlayerTaskCompleted(string Id) : base(Id)
-        {
-        }
-    }
-
-    public class PlayerTaskStarted : PlayerTaskBaseEvent
-    {
-        public PlayerTaskStarted(string Id) : base(Id)
-        {
-        }
-    }
-
-    public class PlayerTaskAborted: PlayerTaskBaseEvent
-    {
-        public PlayerTaskAborted(string Id) : base(Id)
-        {
-        }
-    }
-    
-    public class PlayerTaskFailed : PlayerTaskBaseEvent
-    {
-        public PlayerTaskFailed(string Id) : base(Id)
-        {
-        }
-    }
-
+    #endregion
 }
 
