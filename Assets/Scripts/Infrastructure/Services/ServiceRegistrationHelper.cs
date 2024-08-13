@@ -19,6 +19,10 @@ namespace MonsterFactory.Services
             //Any Service that requires a registered service from this list
             //should come below the register call of those classes
             RegisterService<MFLocalDBService>(containerBuilder, typeof(ITypeSerializedDBService), ref servicesList);
+            RegisterService<InventoryManager>(containerBuilder, typeof(IInventoryManager), ref servicesList);
+            RegisterService<BuildingManager>(containerBuilder, typeof(IBuildingManager), ref servicesList);
+            RegisterService<NPCManager>(containerBuilder, typeof(INPCManager), ref servicesList);
+            RegisterService<NPCAssignmentManager>(containerBuilder, typeof(INPCAssignmentManager), ref servicesList);
             
             return servicesList;
         }

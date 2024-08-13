@@ -9,14 +9,14 @@ using VContainer.Unity;
 
 namespace MonsterFactory.Services
 {
-    public class TestClass : IAsyncStartable
+    public class GameInitializer : IAsyncStartable
     {
-        private readonly MFLocallyStoredDataInstanceProvider<TestData> testDataInstanceProvider;
+        private readonly MFLocallyStoredDataInstanceProvider<RuntimeGameData> testDataInstanceProvider;
         private readonly IAsyncPublisher<DataEventLoadData> fetchEvent;
         private readonly IAsyncPublisher<DataEventSaveData> saveDataPublisher;
 
         [Inject]
-        public TestClass(MFLocallyStoredDataInstanceProvider<TestData> testDataInstanceProvider, IAsyncPublisher<DataEventLoadData> fetchEvent, IAsyncPublisher<DataEventSaveData> saveDataPublisher)
+        public GameInitializer(MFLocallyStoredDataInstanceProvider<RuntimeGameData> testDataInstanceProvider, IAsyncPublisher<DataEventLoadData> fetchEvent, IAsyncPublisher<DataEventSaveData> saveDataPublisher)
         {
             this.testDataInstanceProvider = testDataInstanceProvider;
             this.fetchEvent = fetchEvent;
@@ -29,7 +29,7 @@ namespace MonsterFactory.Services
             await fetchEvent.PublishAsync(new DataEventLoadData(true), cancellation);
             //testDataInstanceProvider.DataInstance.DataString = "TEST";
             //await saveDataPublisher.PublishAsync(new DataEventSaveData(false));
-            Debug.Log(testDataInstanceProvider.DataInstance.DataString);
+            //Debug.Log(testDataInstanceProvider.DataInstance.BuildingData);
         }
     }
 }

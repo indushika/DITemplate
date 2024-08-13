@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 namespace MonsterFactory.Services.DataManagement
 {
     
-    [Union(0, typeof(TestData))]
+    [Union(0, typeof(RuntimeGameData))]
     public abstract class MFData : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;

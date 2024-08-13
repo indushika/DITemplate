@@ -22,7 +22,7 @@ namespace Infrastructure.Systems
             SetupSession(builder);
             SetupServices(builder);
             SetupDataProviders(builder);
-            builder.RegisterEntryPoint<TestClass>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GameInitializer>(Lifetime.Singleton);
         }
 
         private void SetupDataProviders(IContainerBuilder builder)
