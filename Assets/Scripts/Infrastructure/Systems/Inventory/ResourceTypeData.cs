@@ -1,17 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
+[GenerateNativeData]
 public class ResourceTypeData 
 {
-    private string id;
-    private string name;
-    private string description;
+    public string id;
+    public string name;
+    public string description;
 
     //value? could be resource type
     private int baseCost;
 
-    private (int, int) gridSize;
+    public (int, int) gridSize;
 
     protected ResourceTypeData(string id, string name, string description, int baseCost)
     {

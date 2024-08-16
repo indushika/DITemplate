@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
+[GenerateNativeData]
 public class Assignment 
 {
-    private int id;
-    private RuntimeAssignmentData runtimeData;
-    private Dictionary<NPCStatType, float> preferredStatWeightsByType;
-    private float progress;
-    private NPCTaskProvider taskProvider;
+    public int id;
+    public RuntimeAssignmentData runtimeData;
+    public Dictionary<NPCStatType, float> preferredStatWeightsByType;
+    public float progress;
+    public NPCTaskProvider taskProvider;
 
     public int Id { get => id; }
     public RuntimeAssignmentData RuntimeData { get => runtimeData;}

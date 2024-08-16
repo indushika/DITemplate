@@ -5,9 +5,9 @@ using System.Linq;
 
 public class NPCAttributeGenerator 
 {
-    Dictionary<NPCAttributeType, NPCAttributeData> attributesByType;
+    Dictionary<NPCAttributeType, NPCAttributeTypeData> attributesByType;
 
-    public NPCAttributeGenerator(Dictionary<NPCAttributeType, NPCAttributeData> attributesByType)
+    public NPCAttributeGenerator(Dictionary<NPCAttributeType, NPCAttributeTypeData> attributesByType)
     {
         this.attributesByType = attributesByType;
     }

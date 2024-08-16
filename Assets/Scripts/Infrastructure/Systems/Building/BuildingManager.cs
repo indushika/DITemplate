@@ -14,9 +14,8 @@ public interface IBuildingManager
 }
 public class BuildingManager : IMFService, IBuildingManager
 {
-    private ReadOnlyGameData readOnlyGameData;
+    private BuildingReadOnlyData buildingReadOnlyData;
     private RuntimeGameData runtimeGameData;
-    private readonly MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider;
 
     private BuildingGenerator generator;
 
@@ -24,11 +23,10 @@ public class BuildingManager : IMFService, IBuildingManager
     private Dictionary<BuildingTypeId, BuildingTypeData> buildingTypeDataById;
 
     [Inject]
-    public BuildingManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider, ReadOnlyGameData readOnlyGameData)
+    public BuildingManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider,
+        MFSerializedReadOnlyDataInstanceProvider<BuildingReadOnlyData> buildingReadOnlyDataInstanceProvider)
     {
-        this.runtimeDataInstanceProvider = runtimeDataInstanceProvider;
-
-        this.readOnlyGameData = readOnlyGameData;
+        buildingReadOnlyData = buildingReadOnlyDataInstanceProvider.DataInstance;
 
         runtimeGameData = runtimeDataInstanceProvider.DataInstance;
 
@@ -54,7 +52,7 @@ public class BuildingManager : IMFService, IBuildingManager
 
             if (!buildingTypeDataById.TryGetValue(buildingType, out BuildingTypeData typeData))
             {
-                if (readOnlyGameData.BuildingTypeDataById.TryGetValue(buildingType, out typeData))
+                if (buildingReadOnlyData.BuildingTypeDataById.TryGetValue(buildingType, out typeData))
                 {
                     buildingTypeDataById.TryAdd(buildingType, typeData);
                 }
@@ -78,7 +76,7 @@ public class BuildingManager : IMFService, IBuildingManager
 
         if (!buildingTypeDataById.TryGetValue(buildingType, out BuildingTypeData data))
         {
-            if (!readOnlyGameData.BuildingTypeDataById.TryGetValue(buildingType, out data))
+            if (!buildingReadOnlyData.BuildingTypeDataById.TryGetValue(buildingType, out data))
             {
                 throw new System.NullReferenceException($"BuildingManager: AreResourcesAvailableForBuild: " +
                     $"Building Type Data not found for Building Type : {buildingType}.");

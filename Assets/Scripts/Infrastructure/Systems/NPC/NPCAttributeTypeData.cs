@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-public struct NPCAttributeData 
+[GenerateNativeData]
+public struct NPCAttributeTypeData 
 {
-    private int effectAmount;
-    private NPCAttributeType attributeType;
-    private string attributeName;
-    private Dictionary<NPCStatType, int> effectAmountByStat;
+    public int effectAmount;
+    public NPCAttributeType attributeType;
+    public string attributeName;
+    public Dictionary<NPCStatType, int> effectAmountByStat;
 
     public int EffectAmount { get => effectAmount; set => effectAmount = value; }
     public NPCAttributeType AttributeType { get => attributeType; set => attributeType = value; }

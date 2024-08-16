@@ -11,8 +11,8 @@ public class ReadOnlyGameData : MFData
     public IReadOnlyDictionary<int, List<string>> FirstNamesCollectionByLength;
     public IReadOnlyDictionary<int, List<string>> LastNamesCollectionByLength;
 
-    public IReadOnlyDictionary<NPCAttributeType, NPCAttributeData> AttributesByType;
-    public IReadOnlyDictionary<NPCStatType,  NPCStatData> StatsByType;
+    public IReadOnlyDictionary<NPCAttributeType, NPCAttributeTypeData> AttributesByType;
+    public IReadOnlyDictionary<NPCStatType,  NPCStatTypeData> StatsByType;
 
     public IReadOnlyDictionary<AssignmentTypeId, AssignmentTypeData> AssignmentTypeDataById;
 

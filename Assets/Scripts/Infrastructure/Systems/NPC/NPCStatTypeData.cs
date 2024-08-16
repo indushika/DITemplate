@@ -1,10 +1,12 @@
-public struct NPCStatData 
+
+[GenerateNativeData]
+public struct NPCStatTypeData 
 {
-    private NPCStatType statType;
-    private string statName;
-    private int description;
-    private int minConstraints;
-    private int maxConstraints;
+    public NPCStatType statType;
+    public string statName;
+    public int description;
+    public int minConstraints;
+    public int maxConstraints;
 
     public NPCStatType StatType { get => statType; set => statType = value; }
     public string StatName { get => statName; set => statName = value; }

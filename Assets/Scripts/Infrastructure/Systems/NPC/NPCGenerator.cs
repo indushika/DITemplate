@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NPCGenerator
 {
-    private ReadOnlyGameData persistentData;
+    private NPCReadOnlyData npcReadOnlyData;
 
     #region Generators
     private NPCNameGenerator nameGenerator;
@@ -21,9 +21,9 @@ public class NPCGenerator
     #endregion
 
 
-    public NPCGenerator(ReadOnlyGameData persistentData)
+    public NPCGenerator(NPCReadOnlyData npcReadOnlyData)
     {
-        this.persistentData = persistentData;
+        this.npcReadOnlyData = npcReadOnlyData;
 
         InitializeGenerators();
     }
@@ -62,25 +62,25 @@ public class NPCGenerator
 
     private void InitializeNameGenerator()
     {
-        var firstNamesByCharacterCount = (Dictionary<int, List<string>>)persistentData.FirstNamesCollectionByLength;
+        var firstNamesByCharacterCount = (Dictionary<int, List<string>>)npcReadOnlyData.FirstNamesCollectionByLength;
 
-        var lastNamesByCharacterCount = (Dictionary<int, List<string>>)persistentData.LastNamesCollectionByLength;
+        var lastNamesByCharacterCount = (Dictionary<int, List<string>>)npcReadOnlyData.LastNamesCollectionByLength;
 
         nameGenerator = new NPCNameGenerator(firstNamesByCharacterCount, lastNamesByCharacterCount);
     }
 
     private void InitializeAttributeGenerator()
     {
-        var attributesByType = (Dictionary<NPCAttributeType, NPCAttributeData>)persistentData.AttributesByType;
+        var attributesByType = (Dictionary<NPCAttributeType, NPCAttributeTypeData>)npcReadOnlyData.AttributesByType;
 
         attributeGenerator = new NPCAttributeGenerator(attributesByType);
     }
 
     private void InitializeStatGenerator()
     {
-        var statsByType = (Dictionary<NPCStatType, NPCStatData>)persistentData.StatsByType;
+        var statsByType = (Dictionary<NPCStatType, NPCStatTypeData>)npcReadOnlyData.StatsByType;
 
-        var attributesByType = (Dictionary<NPCAttributeType, NPCAttributeData>)persistentData.AttributesByType;
+        var attributesByType = (Dictionary<NPCAttributeType, NPCAttributeTypeData>)npcReadOnlyData.AttributesByType;
 
         statGenerator = new NPCStatGenerator(statsByType, attributesByType);
     }

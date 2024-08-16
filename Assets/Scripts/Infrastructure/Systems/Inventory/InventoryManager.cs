@@ -18,25 +18,22 @@ public interface IInventoryManager
 public class InventoryManager : IMFService, IInventoryManager
 {
     private RuntimeGameData runtimeGameData;
-    private ReadOnlyGameData readOnlyGameData;
-    private readonly MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider;
-
+    private ResourceReadOnlyData resourceReadOnlyData;
 
     private InventoryData inventoryData;
     private Dictionary<ResourceTypeId, ResourceTypeData> resourceTypeDataById;
 
     [Inject]
-    public InventoryManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider, ReadOnlyGameData readOnlyGameData)
+    public InventoryManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider,
+        MFSerializedReadOnlyDataInstanceProvider<ResourceReadOnlyData> resourceReadOnlyDataInstanceProvider)
     {
-        this.runtimeDataInstanceProvider = runtimeDataInstanceProvider;
-
-        this.readOnlyGameData = readOnlyGameData;
+        resourceReadOnlyData = resourceReadOnlyDataInstanceProvider.DataInstance;
 
         runtimeGameData = runtimeDataInstanceProvider.DataInstance;
 
         resourceTypeDataById = default;
 
-        if (runtimeGameData == null || readOnlyGameData == null)
+        if (runtimeGameData == null || resourceReadOnlyData == null)
         {
             throw new NullReferenceException("InventoryManager: Game Data is missing.");
         }
@@ -53,7 +50,7 @@ public class InventoryManager : IMFService, IInventoryManager
 
         if (!resourceTypeDataById.ContainsKey(resourceTypeId))
         {
-            if (readOnlyGameData.ResourceTypeDataById.TryGetValue(resourceTypeId, out ResourceTypeData data))
+            if (resourceReadOnlyData.ResourceTypeDataById.TryGetValue(resourceTypeId, out ResourceTypeData data))
             {
                 resourceTypeDataById.Add(resourceTypeId, data);
             }
@@ -113,7 +110,7 @@ public class InventoryManager : IMFService, IInventoryManager
 
         var resourceAmountById = inventoryData.ResourceAmountById;
 
-        var resourceDataById = readOnlyGameData.ResourceTypeDataById;
+        var resourceDataById = resourceReadOnlyData.ResourceTypeDataById;
 
         foreach (var item in resourceAmountById)
         {

@@ -16,9 +16,8 @@ public interface INPCManager
 }
 public class NPCManager : IMFService, INPCManager
 {
-    private ReadOnlyGameData readOnlyGameData;
+    private NPCReadOnlyData npcReadOnlyData;
     private RuntimeGameData runtimeGameData;
-    private readonly MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider;
 
     private Dictionary<int, NPCData> activeNPCById;
 
@@ -26,17 +25,16 @@ public class NPCManager : IMFService, INPCManager
     private NPCGenerator generator;
 
     [Inject]
-    public NPCManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider, ReadOnlyGameData readOnlyGameData)
+    public NPCManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider, 
+        MFSerializedReadOnlyDataInstanceProvider<NPCReadOnlyData> npcReadOnlyDataInstanceProvider)
     {
-        this.runtimeDataInstanceProvider = runtimeDataInstanceProvider;
-
-        this.readOnlyGameData = readOnlyGameData;
+        npcReadOnlyData = npcReadOnlyDataInstanceProvider.DataInstance;
 
         runtimeGameData = runtimeDataInstanceProvider.DataInstance;
 
         idProvider = new NPCIdProvider(runtimeGameData.NPCIds);
 
-        generator = new NPCGenerator(readOnlyGameData);
+        generator = new NPCGenerator(npcReadOnlyData);
 
         activeNPCById = new Dictionary<int, NPCData>();
     }
@@ -98,7 +96,7 @@ public class NPCManager : IMFService, INPCManager
     #region Implementation 
     private void LoadNPCData()
     {
-        if (readOnlyGameData == null)
+        if (npcReadOnlyData == null)
         {
             throw new NullReferenceException("NPCManager: LoadNPCData: Persistent Game Data not found.");
         }

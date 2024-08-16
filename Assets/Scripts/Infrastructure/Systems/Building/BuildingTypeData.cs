@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[GenerateNativeData]
 public class BuildingTypeData 
 {
-    private string name;
-    private int constructionTime;
-    private Dictionary<ResourceTypeId, int> constructionResourceAmountById;
-    private int npcCapacity;
-    private (int, int) gridSize;
+    public string name;
+    public int constructionTime;
+    public Dictionary<ResourceTypeId, int> constructionResourceAmountById;
+    public int npcCapacity;
+    public (int, int) gridSize;
 
     public string Name { get => name; }
     public int ConstructionTime { get => constructionTime; }

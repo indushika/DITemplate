@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 public class NPCStatGenerator 
 {
-    private Dictionary<NPCStatType, NPCStatData> statsByType;
-    private Dictionary<NPCAttributeType, NPCAttributeData> attributesByType;
+    private Dictionary<NPCStatType, NPCStatTypeData> statsByType;
+    private Dictionary<NPCAttributeType, NPCAttributeTypeData> attributesByType;
 
     private Dictionary<NPCStatType, int> baseValuesByStatType;
 
-    public NPCStatGenerator(Dictionary<NPCStatType, NPCStatData> statsByType, 
-        Dictionary<NPCAttributeType, NPCAttributeData> attributesByType)
+    public NPCStatGenerator(Dictionary<NPCStatType, NPCStatTypeData> statsByType, 
+        Dictionary<NPCAttributeType, NPCAttributeTypeData> attributesByType)
     {
         this.statsByType = statsByType;
         this.attributesByType = attributesByType;
@@ -77,7 +77,7 @@ public class NPCStatGenerator
         {
             foreach (var attribute in attributes)
             {
-                if (attributesByType.TryGetValue(attribute, out NPCAttributeData attributeData))
+                if (attributesByType.TryGetValue(attribute, out NPCAttributeTypeData attributeData))
                 {
                     var stats = attributeData.EffectAmountByStat;
 

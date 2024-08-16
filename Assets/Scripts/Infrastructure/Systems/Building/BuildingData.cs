@@ -1,16 +1,15 @@
 ﻿
-using System;
 using System.Collections.Generic;
-using System.Numerics;
+using UnityEngine;
 
 //MF Data
-[Serializable]
+[GenerateNativeData]
 public class BuildingData
 {
-    private BuildingTypeId buildingType;
-    private int level;
-    private List<int> occupiedNPCIds;
-    private Vector3 gridPosition;
+    public BuildingTypeId buildingType;
+    public int level;
+    public List<int> occupiedNPCIds;
+    public Vector3 gridPosition;
 
     public BuildingTypeId BuildingType { get => buildingType; }
     public int Level { get => level; set => level = value; }

@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //MF Data
+[GenerateNativeData]
 public class InventoryData
 {
-    private Dictionary<ResourceTypeId, int> resourceAmountById = default;
-
+    public Dictionary<ResourceTypeId, int> resourceAmountById;
     public Dictionary<ResourceTypeId, int> ResourceAmountById { get => resourceAmountById; }
+
+    public InventoryData()
+    {
+        resourceAmountById = default;
+    }
+
 
     #region API
     public void AddResource(ResourceTypeId resourceTypeId, int amount)

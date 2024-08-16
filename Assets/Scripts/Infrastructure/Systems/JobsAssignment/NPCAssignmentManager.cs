@@ -15,9 +15,8 @@ public interface INPCAssignmentManager
 }
 public class NPCAssignmentManager : IMFService, INPCAssignmentManager
 {
-    private ReadOnlyGameData readOnlyGameData;
+    private AssignmentReadOnlyData assignmentReadOnlyData;
     private RuntimeGameData runtimeGameData;
-    private readonly MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider;
 
     private NPCManager npcManager;
     private NPCTaskRunner npcTaskRunner;
@@ -28,12 +27,10 @@ public class NPCAssignmentManager : IMFService, INPCAssignmentManager
     private Dictionary<int, Assignment> activeAssignmentsById;
 
     [Inject]
-    public NPCAssignmentManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider, ReadOnlyGameData readOnlyGameData)
+    public NPCAssignmentManager(MFLocallyStoredDataInstanceProvider<RuntimeGameData> runtimeDataInstanceProvider,
+        MFSerializedReadOnlyDataInstanceProvider<AssignmentReadOnlyData> assignmentReadOnlyDataInstanceProvider)
     {
-        this.runtimeDataInstanceProvider = runtimeDataInstanceProvider;
-
-        this.readOnlyGameData = readOnlyGameData;
-
+        assignmentReadOnlyData = assignmentReadOnlyDataInstanceProvider.DataInstance;
         runtimeGameData = runtimeDataInstanceProvider.DataInstance;
 
         Initialize();
@@ -46,7 +43,7 @@ public class NPCAssignmentManager : IMFService, INPCAssignmentManager
 
         if (!assignmentTypeDataById.TryGetValue(assignmentType, out assignmentData))
         {
-            if (!readOnlyGameData.AssignmentTypeDataById.TryGetValue(assignmentType, out assignmentData))
+            if (!assignmentReadOnlyData.AssignmentTypeDataById.TryGetValue(assignmentType, out assignmentData))
             {
                 throw new System.Exception("NPCAssignmentManager: AddAssignment: Assignment Type Data not found.");
             }
@@ -92,9 +89,9 @@ public class NPCAssignmentManager : IMFService, INPCAssignmentManager
     }
     private void LoadAssignmentsFromGameData()
     {
-        if (readOnlyGameData == null) 
+        if (assignmentReadOnlyData == null) 
         {
-            throw new System.ArgumentNullException("JobsManager: LoadAssignmentsFromGameData: Persistent Game Data not found");
+            throw new System.ArgumentNullException("JobsManager: LoadAssignmentsFromGameData: Assignment Read-Only Game Data not found");
         }
 
         activeAssignmentsById = runtimeGameData.AssignmentsById;
